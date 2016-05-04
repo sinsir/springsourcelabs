@@ -1,0 +1,40 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Appendix&nbsp;C.&nbsp;Using Web Tools Platform (WTP)</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="eclipse.html" title="Appendix&nbsp;B.&nbsp;Eclipse Tips"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="appendix-wtp-server"></a>Appendix&nbsp;C.&nbsp;Using Web Tools Platform (WTP)</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="appendix-wtp-server-intro"></a>C.1.&nbsp;Introduction</h2></div></div></div><p>This section of the lab documentation describes the general
+    configuration and use of the <a href="http://www.eclipse.org/webtools/" target="_top">Web Tools Platform</a> plugin
+    for Eclipse using Tomcat 6.0 for testing web application labs and
+    samples.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="appendix-wtp-server-verify-view"></a>C.2.&nbsp;Verify and/or Install the Tomcat Server</h2></div></div></div><p>The <span class="emphasis"><em>Servers</em></span> view provided by the WTP plugin
+    needs to be open, so that you can see the status of the Tomcat server.
+    Verify that you can see the Servers view. The tab for this view should be
+    beside other views such as <span class="emphasis"><em>Problems</em></span> and
+    <span class="emphasis"><em>Console</em></span>. If the view is not open, open it now via the
+    '<span class="emphasis"><em>Windows | Show View | Other ... | Server | Servers</em></span>'
+    menu sequence.</p><p>Your workspace may already contain a pre-created entry for a Tomcat
+    6.0 server, visible in the <span class="emphasis"><em>Servers</em></span> view as
+    '<span class="emphasis"><em>Tomcat v6.0 Server at localhost</em></span>'. If it does,
+    proceed to the next step. Otherwise, you will need to install a new server
+    runtime. Do this by clicking on the Spring icon in the toolbar 
+    below the main menus. This will launch the Spring Tool Suite
+    Dashboard, on which there is a <span class="emphasis"><em>Configuration</em></span> tab with
+    a link to <span class="emphasis"><em>'Create Server Instance'</em></span>. Click on this
+    link and verify that a server runtime is created in the
+    <span class="emphasis"><em>Servers</em></span> view. Please ask your instructor for
+    assistance if you get stuck.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="appendix-wtp-server-configuration"></a>C.3.&nbsp;Starting &amp; Deploying to the Server</h2></div></div></div><p>The easiest way to deploy and run an application using WTP is to
+    right-click on the project and select '<span class="emphasis"><em>Run As</em></span>' then
+    '<span class="emphasis"><em>Run On Server</em></span>'.</p><div class="mediaobject" align="center"><img src="images/wtp-server/run-as-run-on-server.png" align="middle"><div class="caption"><p>Run On Server</p></div></div><p>The console view should show status and log information as Tomcat
+    starts up, including any exceptions due to project
+    misconfiguration.</p><p>After everything starts up, it should show as a deployed project
+    under the server in the <span class="emphasis"><em>Servers</em></span> tab.</p><div class="mediaobject" align="center"><img src="images/wtp-server/deployed-to-running-server.png" align="middle"><div class="caption"><p>Running on Server</p></div></div><p>Similarly, the server can be shut down (stopped) by pressing the red
+    box in the toolbar of the Servers tab.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>When you run the server as described above, you are running it
+      against the project in-place (with no separate deployment step). Changes
+      to JSP pages will not require a restart. However, changes to Spring
+      Application Context definition files will require stopping and
+      restarting the server for them to be picked up, since the application
+      context is only loaded once at web app startup.</p></td></tr></table></div><p>WTP will launch a browser window opened to the root of your
+    application, making it easy to start testing the functionality.</p><div class="mediaobject" align="center"><img src="images/wtp-server/start-browser-screen.png" align="middle"><div class="caption"><p>Start Browser</p></div></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>It is generally recommended that you only run one project at a
+      time on a server. This will ensure that as you start or restart the
+      server, you only see log messages in the console from the project you
+      are actively working in. To remove projects that you are no longer
+      working with from the server, right click on them under the server in
+      the <span class="emphasis"><em>Servers</em></span> view and select
+      '<span class="emphasis"><em>Remove</em></span>'.</p></td></tr></table></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="eclipse.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;</td></tr><tr><td width="40%" align="left" valign="top">Appendix&nbsp;B.&nbsp;Eclipse Tips&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;</td></tr></table></div></body></html>

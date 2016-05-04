@@ -1,0 +1,117 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Transaction Management with Spring</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="jdbc-lab.html" title="JDBC Simplification using the JdbcTemplate"><link rel="next" href="jpa-lab.html" title="JPA Simplification using Spring"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="tx-lab"></a>Transaction Management with Spring</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="tx-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will gain experience with using Spring's declarative
+    transaction management to open a transaction on entry to the application
+    layer and participate in that transaction during all data access. You will
+    use the <code class="literal">@Transactional</code> annotation to denote what
+    methods need to be decorated with transactionality.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to identify where to apply transactionality</p></li><li><p>How to apply transactionality to a method</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>The <code class="classname">@Transactional</code> annotation</p></li><li><p>The <code class="interfacename">PlatformTransactionManager</code>
+        interface</p></li><li><p>The <code class="literal">&lt;tx:annotation-driven/&gt;</code> bean
+        definition</p></li><li><p>Using transactional integration tests</p></li></ol></div><p>Estimated time to complete: 25 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="tx-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="tx-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>The goal of this lab is to declaratively add transactionality to the
+    rewards application. The lab will be divided into two parts. In the first
+    part you will add transactionality to the application and visually verify
+    that your test case opens a single transaction for the entire use-case. In
+    the second section you will experiment with some of the settings for
+    transaction management and see what outcomes they produce.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.add-transactional"></a>3.1.&nbsp;Demarcating Transactional Boundaries in the Application</h3></div></div></div><p>Spring offers a number of ways to configure transactions in an
+      application. In this lab we're going to use a strategy that leverages
+      annotations to identify where transactionality should be applied and
+      what configuration to use.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3074"></a>3.1.1.&nbsp;Add <code class="literal">@Transactional</code> annotation</h4></div></div></div><p>(TODO-01) Find and open the <code class="classname">RewardNetworkImpl</code> class
+        in the <code class="literal">rewards.internal</code> package. In that class
+        locate the <code class="methodname">rewardAccountFor(Dining)</code> method
+        and add an <code class="literal">@Transactional</code> annotation to it. Adding the 
+        annotation will identify this method as a place to
+        apply transactional semantics at runtime.</p><p>TODO-02 Next we need to configure the platform transaction manager.
+        Navigate to the <code class="literal">SystemTestConfig</code> configuration class and 
+        wire up a <code class="literal">DataSourceTransactionManager</code>. Remember
+        to set the <code class="literal">dataSource</code> property on this bean
+        definition.</p><p>(TODO-03) Finally, find and open the
+        <code class="filename">RewardsConfig.java</code> file in the config package.
+        In this class you'll need to tell the container to look for the
+        <code class="classname">@Transactional</code> annotation you just placed on
+        the <code class="classname">RewardNetworkImpl</code> class. To do this add a
+        <code class="literal">@EnableTransactionManagement</code> annotation.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3119"></a>3.1.2.&nbsp;Verify transactional behavior</h4></div></div></div><p>Verify that your transaction declarations are working correctly
+        by running the <code class="classname">RewardNetworkTests</code> class from
+        the <code class="literal">src/test/java</code> source folder. You should see
+        output that looks like below. The important thing to note is that only
+        a single connection is acquired and a single transaction is
+        created.</p><pre class="programlisting">... Acquired Connection [org.hsqldb.jdbc.
+    jdbcConnection@59fb21] for JDBC transaction
+... Switching JDBC Connection [org.hsqldb.jdbc.
+jdbcConnection@59fb21] to manual commit
+... Initiating transaction commit
+... Committing JDBC transaction on Connection [org.hsqldb.
+jdbc.jdbcConnection@59fb21]
+... Releasing JDBC Connection [org.hsqldb.jdbc.
+jdbcConnection@59fb21] after transaction</pre><p>If your test completes successfully and you've verified that
+        only a single connection and transaction are used, you've completed
+        this section. Move on to the next one.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.propagation"></a>3.2.&nbsp;Configuring Spring's Declarative Transaction Management</h3></div></div></div><p>Setting up Spring's declarative transaction management is pretty
+      easy if you're just using the default propagation setting
+      (<code class="literal">Propagation.REQUIRED</code>). However, there are cases when
+      you may want to suspend an existing transaction and force a certain
+      section of code to run within a <span class="emphasis"><em>new</em></span> transaction. In
+      this section, you will adjust the configuration of your reward network
+      transaction in order to experiment with
+      <code class="literal">Propagation.REQUIRES_NEW</code>.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3148"></a>3.2.1.&nbsp;Modify Propagation Behavior</h4></div></div></div><p>(TODO-04) Find and open
+        <code class="classname">RewardNetworkPropagationTests</code> from the
+        <code class="literal">rewards</code> package in the
+        <code class="literal">src/test/java</code> source folder. Take a look at the
+        test in the class. This test does a simple verification of data in the
+        database, but also does a bit of transaction management. The test
+        opens a transaction at the beginning, (using the
+        <code class="literal">transactionManager.getTransaction(..)</code> call). Next,
+        it executes <code class="methodname">rewardAccountFor(Dining)</code>, then
+        rolls back the transaction, and finally tests to see if data has been
+        correctly inserted into the database. Now run the test class with
+        JUnit. You'll see that the test has failed because the rollback
+        removed all data from the database, including the data that was
+        created by the <code class="literal">rewardAccountFor(Dining)</code>
+        method.</p><p>(TODO-05) The <code class="methodname">rewardAccountFor(Dining)</code> was
+        created with a propagation level of
+        <code class="literal">Propagation.REQUIRED</code> which means that it
+        <span class="emphasis"><em>will participate in any transaction that already exists</em></span>. 
+        When the manually created transaction was rolled
+        back it destroyed the data from the @Transactional method. In real
+        life, it actually would generally be appropriate for this method to be
+        marked as <code class="literal">Propagation.REQUIRED</code>, with the test being
+        considered inappropriate, but this affords us a chance to test the
+        results of changing the propagation settings.</p><p>Find and open <code class="classname">RewardNetworkImpl</code> and
+        override the default propagation behavior with
+        <code class="literal">Propagation.REQUIRES_NEW</code>. Run the
+        <code class="classname">RewardNetworkPropagationTests</code>. If you get the
+        green bar, you have verified that the test's transaction was suspended
+        and the <code class="methodname">rewardAccountFor(Dining)</code> method
+        executed in its own transaction. You've completed this section. Move
+        on to the next one.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.transactional-tests"></a>3.3.&nbsp;Developing Transactional Tests</h3></div></div></div><p>When dealing with persistent data in a test scenario, it can be
+      very expensive to ensure that preconditions are met before executing a
+      test case. In addition to being expensive, it can also be error prone
+      with later tests inadvertently depending on the effects of earlier
+      tests. In this section you'll learn about some of the support classes
+      Spring provides for helping with these issues.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3204"></a>3.3.1.&nbsp;Use <code class="interfacename">@Transactional</code> to isolate test cases</h4></div></div></div><p>First, back out your propagation changes from the previous
+        section (change the propagation back to
+        <code class="literal">Propagation.REQUIRED</code> instead of
+        <code class="literal">Propagation.REQUIRES_NEW</code>. This is the appropriate
+        propagation setting for this method.</p><p>(TODO-06) Find and open
+        <code class="classname">RewardNetworkSideEffectTests</code> from the
+        <code class="literal">rewards</code> package in the
+        <code class="literal">src/test/java</code> source folder. Take a look at the two
+        tests in the class. You'll notice that they simply call the
+        <code class="methodname">rewardAccountFor(Dining)</code> method, pass in some
+        data, and verify that the data was recorded properly. Now run the test
+        class with JUnit. You'll see that the second test method failed with
+        an error that Annabelle's savings was 8.0, when 4.0 was expected. The
+        reason we see this is because the data committed from the first test
+        case has violated the preconditions for the second test case.</p><p>The good news is that Spring has a facility that can help you to
+        avoid this corruption of test data in a
+        <code class="interfacename">DataSource</code>. You can simply annotate
+        your test methods, or even your test class itself to apply to all
+        methods, with <code class="interfacename">@Transactional</code>: this
+        wraps each test case in its own transaction and rolls back that
+        transaction when the test case is finished. The effect of this is that
+        data is never committed to the tables and therefore, the database is
+        in its original state for the start of the next test case. Now
+        annotate the <code class="classname">RewardNetworkSideEffectTests</code> class
+        with <code class="interfacename">@Transactional</code>. Run the
+        test again and notice that there is now a green bar. Because the
+        changes made by the first test were rolled back, the second test got
+        the results it expected.</p><p>Congratulations, you're done with the lab!</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jdbc-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jpa-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">JDBC Simplification using the JdbcTemplate&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;JPA Simplification using Spring</td></tr></table></div></body></html>

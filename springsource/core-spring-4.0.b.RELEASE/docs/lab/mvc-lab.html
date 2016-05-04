@@ -1,0 +1,140 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Spring MVC Essentials</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="jpa-lab.html" title="JPA Simplification using Spring"><link rel="next" href="security-lab.html" title="Securing the Web Tier"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="mvc-lab"></a>Spring MVC Essentials</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="mvc-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will implement basic Spring MVC Controllers to
+ invoke application functionality and display results to the user.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to set up required Spring MVC infrastructure</p></li><li><p>How to expose Controllers as endpoints mapped to web application URLs</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p><code class="classname">DispatcherServlet</code></p></li><li><p><code class="interfacename">@Controller</code></p></li><li><p><code class="classname">InternalResourceViewResolver</code></p></li></ol></div><p>Estimated time to complete: 30 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="mvc-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Occasionally, TODO'S defined within XML files may fail to appear in 
+    the <code class="literal">Tasks</code> view (i.e. gaps in the number sequence).  To correct this, 
+    go to <code class="literal">Preferences -&gt; General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+    pane.  Check <code class="literal">Enable searching for Task Tags</code> and click <code class="literal">Clean and Redetect Tasks</code>.
+    On the <code class="literal">Filters</code> tab, ensure XML content type is checked.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="mvc-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>The instructions for this lab are organized into two main sections.
+ In the first section you will be briefed on the web application
+ functionality you will implement in this lab, then you will review the
+ pre-requisite infrastructure needed to develop with Spring MVC. In the
+ second section you will actually implement the required web application
+ functionality.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3973"></a>3.1.&nbsp;Setting up the Spring MVC infrastructure</h3></div></div></div><p>Spring MVC is a comprehensive web application development
+  framework. In this section, you will review the goals of the web
+  application you will be developing in this lab, then set up the initial
+  infrastructure required to use Spring MVC.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.assess"></a>3.1.1.&nbsp;Assess the initial state of the web application</h4></div></div></div><p>The web application you are developing should allow users to see
+  a list of all accounts in the system, then view details about a
+  particular account. This desired functionality is shown graphically
+  below:</p><div class="mediaobject" align="center"><img src="images/mvc-1/accountList.png" align="middle"><div class="caption"><p>Figure 1: GET /accounts/accountList: View a listing
+   of all accounts by name with links to view details</p></div></div><div class="mediaobject" align="center"><img src="images/mvc-1/accountDetails.png" align="middle"><div class="caption"><p>Figure 2: GET /accounts/accountDetails?entityId=0: Show
+   details about account '0'</p></div></div><p>Currently, this desired functionality is half-implemented. In
+  this first step you will assess the initial state of the web
+  application.</p><p>(TODO-01) Begin by <a href="appendix-wtp-server.html" title="Appendix&nbsp;C.&nbsp;Using Web Tools Platform (WTP)">deploying the web application</a> for this project as-is. Once deployed, navigate to
+  the index page at <a href="http://localhost:8080/mvc" target="_top">http://localhost:8080/mvc</a>.
+  You should see the index page display. Now click the <code class="literal">View Account List</code> link. You should see a list of accounts
+  display successfully. This 'accountList' functionality has been
+  pre-implemented for you. We will review and change some of that
+  later on, but it at least gets you started with the application.</p><p>Now try clicking on one of the account links. You will get a 404
+  indicating there is no handler for this request. This 'accountDetails'
+  functionality has not yet been implemented. You'll implement this
+  functionality in this lab.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4010"></a>3.1.2.&nbsp;Review the application configuration</h4></div></div></div><p>Quickly assess the initial configuration of the "backend" of
+  this web application. To do this, open <code class="filename">web.xml</code> in
+  the <code class="literal">src/main/webapp/WEB-INF</code> directory. Notice that
+  a <code class="classname">ContextLoaderListener</code> has already been
+  defined for you. This listener is configured to bootstrap your
+  application-layer from
+  <code class="literal">RootConfig</code> class. Open this file to
+  see the beans that make up this layer. You will see that it simply imports other configurations
+  and establishes transaction management, all with just a few annotations.</p><p>The <code class="literal">accountManager</code> is the key service that
+  can load accounts from the database for display. The web layer, which
+  will be hosted by the Spring MVC DispatcherServlet, will call into
+  this service to handle user requests for account information.</p><p>With an understanding of the application-layer configuration,
+  move on to the next step to review the web-layer configuration.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4034"></a>3.1.3.&nbsp;Review the Spring MVC DispatcherServlet configuration</h4></div></div></div><p>The central infrastructure element of Spring MVC is the
+  <code class="classname">DispatcherServlet</code>. This servlet's job is to
+  dispatch HTTP requests into the web application to handlers you
+  define. As a convenience, this lab has already deployed a
+  DispatcherServlet for you with a basic boilerplate configuration. In
+  this step, you will review this configuration and see how the existing
+  functionality of the web application is implemented.</p><p>First, open <code class="filename">web.xml</code> and navigate to the
+  definition of the <code class="literal">accounts</code> servlet. Notice it is a
+  DispatcherServlet and that all <code class="literal">/accounts/*</code> requests
+  are mapped to it. Also note how it is initialized with a configuration
+  file. This file contains your web-layer beans.</p><p>Now open the DispatcherServlet configuration file and review it.
+  First, notice how component scanning is used to detect all controllers
+  within a specific package.  This keeps us from having to define individual 
+  bean declarations for each controller, which can be 
+  great when we have dozens or hundreds of controllers.</p><p>Next, review the Java implementation of the
+  <code class="classname">AccountController</code> to see how it works. Notice how
+  the <code class="literal">@RequestMapping</code> annotation ties the
+  <code class="literal">/accountList</code> URL to the <code class="literal">accountList()</code>
+  method and how this method delegates to the <code class="interfacename">AccountManager</code> 
+  to load a list of Accounts. It then selects the <code class="literal">accountList.jsp</code>
+  view to render the list. Finally it returns a <code class="classname">String</code> 
+  indicating to the DispatcherServlet what view to use to render the model.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Notice that the view name is specified as the full path relative
+   to the Servlet's context root. The default 
+   <code class="interfacename">ViewResolver</code> simply forwards to the
+   resource at that location.</p></td></tr></table></div><p>Lets quickly summarize the big picture. Return to your web
+  browser, and click on the "View Account List" link again. You
+  should see the account list display again successfully. Clicking on
+  that link issued a GET request to
+    <code class="literal">http://localhost:8080/mvc/accounts/accountList</code>
+  which set the following steps in motion: </p><div class="orderedlist"><ol type="1"><li><p>The request was first received by the Servlet Engine,
+    which routed it to the DispatcherServlet.</p></li><li><p>The DispatcherServlet then invoked the 
+    <code class="literal">accountList()</code> method on the <code class="classname">AccountController</code>
+    based on the <code class="interfacename">@RequestMapping</code> annotation.</p></li><li><p>Next, the AccountController loaded the account list
+    and selected the "accountList.jsp" view.</p></li><li><p>Finally, the accountList.jsp rendered the response
+    which you see before you.</p></li></ol></div><p>At this time, it might also be helpful to visualize the complete
+  web application configuration across layers. To do this, graph the
+  <code class="literal">web-context</code> config set in your Spring
+  Explorer view. Notice how this config set merges both the
+  DispatcherServlet and Application configuration files, and produces a
+  graph that illustrates the relationship between your web-layer
+  artifacts and your application-layer artifacts.</p><p>At this point you should have a good feel for how you could add
+  the remaining "accountDetails" functionality to this application. You
+  simply need to define a new method encapsulating this
+  functionality, test it, and map it to the appropriate URL. You'll do
+  that in the next section.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4118"></a>3.2.&nbsp;Implementing another Spring MVC handler method</h3></div></div></div><p>In this section you will implement the handler method that will implement
+   the functionality for the account details page. When you have completed
+   this section, you will no longer get a 404 when you click on an account
+   link from the list view. Instead, you will see the details of that
+   account.
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.accountDetails"></a>3.2.1.&nbsp;Implement the /accountDetails request handler</h4></div></div></div><p> (TODO-02) In the <code class="classname">AccountController</code>, add a method
+    to handle requests for account details. The method should 
+    use the account identifier passed with the HTTP request to load the 
+    account, add it to the model, and then select a view.
+   </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>In your web browser, try clicking on an account
+     to see which parameter name is used to pass in the 
+     account identifier.
+    </p></td></tr></table></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>The JSP has already been implemented for you. 
+     Review it in the /WEB-INF/views directory.
+    </p></td></tr></table></div><p>When you're done with the implementation of the account details
+    page try to run the web application again and make sure the
+    functionality you implemented works. If it doesn't, try to chase where
+    you might have gone wrong and possibly talk to your instructor.
+   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.account-test"></a>3.2.2.&nbsp;Testing the controller</h4></div></div></div><p>We're almost done! There are two things we still have to do.
+    First of all, we have to test the controller.
+   </p><p>(TODO-03) Open <code class="classname">AccountControllerTests</code> 
+        and review how the accountList() method has been tested.
+    As you can see, it just calls the handler method without having to
+    do additional trickery and inspects if the model has been correctly
+    filled. In this step, we will do the same for the accountDetails()
+    method.
+   </p><p>Implement a method called <code class="literal">testHandleDetailsRequest()</code> to
+        test the controller and annotate with <code class="interfacename">@org.junit.Test</code>.
+   </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>The ability to test
+     Spring MVC Controllers out-of-the-container is a great feature.
+     Strive to create a test for each controller in your application.
+     You'll find it proves more productive to test your controller
+     logic using automated unit tests, than to rely solely on manual
+     testing within your web browser.
+    </p></td></tr></table></div><p>When all tests pass move on to the next step.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.view-resolver"></a>3.2.3.&nbsp;Add a ViewResolver</h4></div></div></div><p>(TODO-04) Up to this point, the view names have been established within each
+  handler method using absolute paths. Each handler method is also
+  aware of the specific type of view that will be rendered (JSPs in this case).
+  It is recommended to decouple request handling from these response rendering
+  details. In this step, you will add a <code class="interfacename">ViewResolver</code>
+  to provide a level of indirection.</p><p>Navigate to the <code class="literal">MvcConfig</code> class and add a bean
+  definition of type <code class="classname">InternalResourceViewResolver</code>.
+  This will override the default <code class="interfacename">ViewResolver</code> and enable the
+  use of logical view names within the Controller code. You should now specify two properties
+  on the view resolver bean definition: <code class="literal">prefix</code> and <code class="literal">suffix</code>.
+  Review the current view names to determine these values.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>The <code class="classname">DispatcherServlet</code> automatically recognizes any bean
+  definitions of type <code class="interfacename">ViewResolver</code>. Therefore, you do not
+  need to provide a bean name for your resolver.</p></td></tr></table></div><p>Now refactor the existing controller and test so that only simple view names are used, such as
+  <code class="literal">accountList</code>. Start by changing the expected values in the two
+  test methods. Run those tests, and notice that they fail. After making those
+  same changes in the AccountController, the tests should pass. At that point,
+  redeploy the web application. If you are able to view the list and then the
+  details view of a selected account, you are done with this lab.</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jpa-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="security-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">JPA Simplification using Spring&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Securing the Web Tier</td></tr></table></div></body></html>

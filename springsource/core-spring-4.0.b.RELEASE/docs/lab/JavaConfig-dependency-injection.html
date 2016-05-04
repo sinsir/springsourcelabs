@@ -1,0 +1,213 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Dependency Injection with JavaConfig</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="spring-intro-lab.html" title="Introduction to Core Spring"><link rel="next" href="annotations-lab.html" title="Configuration with annotations"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="JavaConfig-dependency-injection"></a>Dependency Injection with JavaConfig</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dependency-injection-with-JavaConfig-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will gain experience using Spring to configure the
+    completed <a href="reference-domain.html" title="Reward Dining: The Course Reference Domain">rewards application</a>.
+    You'll use Spring to configure the pieces of the application, then run a
+    top-down system test to verify application behavior.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>The <span class="emphasis"><em>big picture</em></span>: how Spring "fits" into the
+        architecture of a typical Enterprise Java application</p></li><li><p>How to use Spring to configure plain Java objects (POJOs)</p></li><li><p>How to organize Spring configuration files effectively</p></li><li><p>How to create a Spring
+        <code class="interfacename">ApplicationContext</code> and get a bean from
+        it</p></li><li><p>How Spring, combined with modern development tools, facilitates a
+        test-driven development process</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>Spring JavaConfig configuration syntax</p></li><li><p>Spring 3 embedded database support</p></li><li><p>SpringSource Tool Suite</p></li></ol></div><p>Estimated time to complete: 45 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dependency-injection-with-JavaConfig-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>If you feel you have a good understanding of the material, implement
+    the tasks listed here. Alternatively, the next section contains more
+    detailed step-by-step instructions. If you aren't sure at any
+    point, each task here is also described in more detail by a corresponding
+    section in the step-by-step instructions.</p><div class="orderedlist"><p class="title"><b>Create the Application Configuration </b></p><ol type="1"><li><p><span class="bold"><strong>Creating application config file</strong></span> (<a href="JavaConfig-dependency-injection.html#details.app-creation" title="3.1.&nbsp;Creating the application configuration">details</a>)</p><p>Go to the <code class="filename">config</code> package. Select new / class, name the file <code class="filename">RewardsConfig</code> and click Finish.
+        Note that the class does not need to extend any other classes or implement any interfaces.
+        </p><p>Annotate the <code class="filename">RewardsConfig</code> class to mark it as a special class for providing
+        configuration instructions.  
+		Within this class, define your four @Bean methods as shown below, 
+        in the 'RewardsConfig.java' box.  Each method should contain the code needed to instantiate
+        the object and set its dependencies.  Since each repository has a DataSource property to set,
+        and since the DataSource will be defined elsewhere (<code class="filename">TestInfrastructureConfig.java</code>), 
+        you will need to define a DataSource field / instance variable set by Spring using the @Autowired annotation.
+        For consistency with the rest of the lab, give your <code class="literal">RewardNetworkImpl</code> @Bean method the name <code class="literal">rewardNetwork</code>.  
+        </p><div class="mediaobject" align="center"><img src="images/JavaConfig-dependency-injection/rewards-configuration-diagram-application.png" align="middle"><div class="caption"><p>Figure 1: Application configuration</p></div></div></li><li><p><span class="bold"><strong>Infrastructure configuration</strong></span> (<a href="JavaConfig-dependency-injection.html#details.infra-config" title="3.1.2.&nbsp;The infrastructure configuration needed to test the application">details</a>)</p><p>Next review the infrastructure configuration necessary to test your
+        application. We need a datasource for your application to use to
+        acquire database connections in a test environment. Open 
+        <code class="filename">TestInfrastructureConfig.java</code> file and verify
+        the datasource and database connection code.</p></li></ol></div><div class="orderedlist"><p class="title"><b>System testing the application with Spring and JUnit</b></p><ol type="1"><li><p><span class="bold"><strong>Create the system test class</strong></span> (<a href="JavaConfig-dependency-injection.html#details.system-test-create" title="3.2.1.&nbsp;Create the system test class">details</a>)</p><p>Create a new JUnit test called
+        <code class="literal">RewardNetworkTests</code> in the
+        <code class="literal">rewards</code> package inside the
+        <code class="literal">src/test/java</code> source folder.</p></li><li><p><span class="bold"><strong>Implement test setup logic</strong></span> (<a href="JavaConfig-dependency-injection.html#details.system-test-setup" title="3.2.2.&nbsp;Implement the test setup logic">details</a>)</p><p>Add the test setup logic required to run your system
+        test. In this method, you will need to create an application context and configure it with the 
+        Spring Bean configuration classes you just created (<code class="filename">RewardsConfig.java</code> and <code class="filename">TestInfrastructureConfig.java</code>). 
+        In addition, you need to obtain a reference to the the <span class="emphasis"><em>rewardNetwork</em></span> bean from the application context.   
+        Assign this as a private field you can reference in your test methods.</p></li><li><p><span class="bold"><strong>Implement test logic</strong></span> (<a href="JavaConfig-dependency-injection.html#details.system-test-implement" title="3.2.3.&nbsp;Implement the test logic">details</a>)</p><p>Copy the unit test (the <code class="literal">@Test</code> method) from
+        <code class="classname">RewardNetworkImplTests.testRewardForDining()</code> - we are testing the
+        same code, but using a different setup.</p></li><li><p><span class="bold"><strong>Run the test</strong></span></p><p>With the test setup logic implemented, you're ready to test your
+        application. Run your new unit test. It will invoke
+        <code class="literal">RewardNetwork.rewardAccountFor(Dining)</code> method to
+        verify all pieces of your application work together to carry out a
+        successful reward operation.</p><p>Congratulations the lab is finished.</p></li><li><p><span class="bold"><strong>Bonus:  Use @Import</strong></span> (<a href="">details</a>)</p><p>Ammend the test's @Before method to reference only the <code class="filename">TestInfrastructureConfig.java</code> configuration class.
+        Next, modify <code class="filename">TestInfrastructureConfig.java</code> to include the <code class="filename">RewardsConfig.java</code>
+        using @Import.  Re-run your test, it should still pass.</p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dependency-injection-with-JavaConfig-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>Instructions for this lab are divided into two sections. In the
+    first section, you'll use Spring to configure the pieces of the rewards
+    application. In the second section, you'll run a system test to verify all
+    the pieces work together to carry out application behavior successfully.
+    Have fun!</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.app-creation"></a>3.1.&nbsp;Creating the application configuration</h3></div></div></div><p>So far you've coded your <code class="classname">RewardNetworkImpl</code>,
+      the central piece of this reward application. You've unit tested it and
+      verified it works in isolation with dummy (stub) repositories. Now it is
+      time to tie all the <span class="emphasis"><em>real</em></span> pieces of the application
+      together, integrating your code with supporting services that have been
+      provided for you. In the following steps you'll use Spring to configure
+      the complete rewards application from its parts. This includes plugging
+      in repository implementations that use a JDBC data source to access a
+      relational database!</p><p>Below is a configuration diagram showing the parts of the rewards
+      application you will configure and how they should be wired
+      together:</p><div class="mediaobject" align="center"><a name="reward-network-system-diagram-annotated"></a><img src="images/JavaConfig-dependency-injection/reward-network-system-diagram-annotated.png" align="middle"><div class="caption"><p>Figure 4: The rewards application configuration diagram</p></div></div><p>The <a href="JavaConfig-dependency-injection.html#reward-network-system-diagram-annotated">diagram</a> shows the configuration 
+	 split into two
+      categories: Application Configuration and Infrastructure Configuration.
+      The components in the Application Configuration box are written by you
+      and makeup the application logic. The components in the Infrastructure
+      Configuration box are not written by you and are lower-level services
+      used by the application. In the next few steps you'll focus on the
+      application configuration piece. You'll define the infrastructure piece
+      later.</p><p>In your project, you'll find your familiar
+      <code class="classname">RewardNetworkImpl</code> in the
+      <code class="literal">rewards.internal</code> package. You'll find each JDBC-based
+      repository implementation it needs located within the domain packages
+      inside the <code class="filename">rewards.internal</code> package. Each
+      repository uses the JDBC API to execute SQL statements against a
+      <code class="interfacename">DataSource</code> that is part of the
+      application infrastructure. The
+      <code class="interfacename">DataSource</code> implementation you will use is
+      not important at this time but will become important later.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e901"></a>3.1.1.&nbsp;Create the application configuration class</h4></div></div></div><p>Spring configuration information is typically externalized from
+        Java code, partitioned across one or more JavaConfig files. In this step
+        you'll create a single JavaConfig file that tells Spring how to configure
+        your application components. </p><p>Under the <code class="filename">src/main/java</code> folder, right-click
+        the <code class="filename">config</code> package and select new / class, name the file 
+        <code class="filename">RewardsConfig</code> and click Finish.
+        Note that the class does not need to extend any other classes or implement any interfaces,
+        we will add some Spring annotations to it, however.</p><p>In the next few steps, we will add code to the <code class="filename">RewardsConfig</code> class
+	   to create the result illustrated in the 'RewardsConfig' box
+        below:</p><div class="mediaobject" align="center"><a name="rewards-configuration-diagram-application"></a><img src="images/JavaConfig-dependency-injection/rewards-configuration-diagram-application.png" align="middle"><div class="caption"><p>Figure 6: Application configuration</p></div></div><p>First, place a @Configuration annotation on the <code class="filename">RewardsConfig</code> class.
+        This tells Spring to treat this class as a set of configuration instructions to be used when the
+        application is starting up.  </p><p>
+		Next, within this <code class="filename">RewardsConfig.java</code> class, define four methods annotated with the @Bean annotation.  Each method
+		should instantiate and return one of the beans in the illustration, accountRepository, restaurantRepository,
+		rewardRepository, and rewardNetwork.  For example, you should create an accountRepository() method that
+		instantiates JdbcAccountRepository and returns it.
+		</p><p>
+		Looking back at the illustration, you can see that each of the three repositories has a dependency
+		on a DataSource that will be defined elsewhere.  This means in each repository method we must make a call
+		to the repository's setDataSource(), passing in a reference to the dataSource.  But where will we get the DataSource from
+		if it is defined in another file (like <code class="filename">TestInfrastructureConfig.java</code>)?  Spring is 
+		able to populate fields on our configuration class with 
+		references to beans defined elsewhere.  To do this, create a field on the class of type DataSource named
+		dataSource and mark it with the @Autowired annotation.  When Spring sees this, it will automatically 
+		populate this field with a reference to the DataSource defined in <code class="filename">TestInfrastructureConfig.java</code>,
+		assuming both configuration files are specified at startup.</p><p>Finally, you should be aware that Spring will assign each bean and ID based on the @Bean
+		method name.  The instructions below will assume that the ID for the RewardNetwork bean is 
+		<code class="literal">rewardNetwork</code>.  Therefore, for consistency with the rest of the lab, 
+		give your <code class="literal">RewardNetworkImpl</code> @Bean method the name <code class="literal">rewardNetwork</code>.  
+        </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip: Follow bean naming conventions"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Follow bean naming conventions</th></tr><tr><td align="left" valign="top"><p>As you define each bean, follow bean naming conventions. The
+          arrows in the <a href="JavaConfig-dependency-injection.html#rewards-configuration-diagram-application">diagram</a> representing bean references follow the
+          recommended naming convention.</p><p>A bean's name should describe the <span class="emphasis"><em>service</em></span>
+          it provides. It should not describe implementation details.
+          For this reason, a bean's name often corresponds to its
+          <span class="emphasis"><em>service interface</em></span>. For example, the class
+          <code class="classname">JdbcAccountRepository</code> implements the
+          <code class="interfacename">AccountRepository</code> interface. This
+          interface is what callers work with. By convention, then, the bean
+          name should be <code class="literal">accountRepository</code>.</p></td></tr></table></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip: Use Eclipse auto-completion"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Use Eclipse auto-completion</th></tr><tr><td align="left" valign="top"><p>As you define each bean, have Eclipse auto-suggest 
+          for you. Press <code class="literal">Ctrl+Space</code> when defining a return type and
+          Eclipse will suggest what's legal based on types available in the classpath.
+          In-line documentation of each tag will also be displayed.</p></td></tr></table></div><p>Once you have the four beans defined and referenced as shown in the
+        <a href="JavaConfig-dependency-injection.html#rewards-configuration-diagram-application">diagram</a>, move on to the next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.infra-config"></a>3.1.2.&nbsp;The infrastructure configuration needed to test the application</h4></div></div></div><p>In the previous step you visualized bean definitions
+        for your application components. In this step we'll investigate the
+        infrastructure configuration necessary to test your application.
+        </p><p>To test your application, each JDBC-based repository needs a
+        <code class="interfacename">DataSource</code> to work. For example, the
+        <code class="classname">JdbcRestaurantRepository</code> needs a
+        <code class="interfacename">DataSource</code> to load
+        <code class="classname">Restaurant</code> objects by their merchant numbers
+        from rows in the <code class="literal">T_RESTAURANT</code> table. So far,
+        though, you have not defined any
+        <code class="interfacename">DataSource</code> implementation (you can see
+        this graphically in the <a href="">graphic</a> as the 'dataSource' references are
+        dangling). In this step you'll see how to setup a
+        <code class="interfacename">DataSource</code> in a separate configuration
+        file in your test tree. It's in the test area, because it is only for
+        testing - it is not the one you would use in production.</p><p>In the <code class="filename">src/test/java</code> source folder,
+        navigate to the root <code class="filename">config</code> package. There you
+        will find a file named
+        <code class="filename">TestInfrastructureConfig.java</code>. Open it.</p><p>You will see that a dataSource is already configured for you.
+        You don't need to make any changes to this file but you do need to
+        understand what we have defined here for you.</p><p>Spring ships with decent support for creating
+        <code class="interfacename">DataSource</code>s based on in-memory
+        databases such as H2, HSQLDB and Derby. The code you see is a quick way to
+        create such a database.  
+        </p><p>
+        Notice how the Builder references external files
+        that contain SQL statements.  These SQL scripts will be executed when the application
+        starts.  Both scripts are on the
+        classpath, so you can use Spring's resource loading mechanism and
+        prefix both of the paths with <code class="literal">classpath:</code>. Note that
+        the scripts will be run in the order specified (top to bottom) so the
+        order matters in this case. </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="testing"></a>3.2.&nbsp;System testing the application with Spring and JUnit</h3></div></div></div><p>In this final section you will test your rewards application with
+      Spring and JUnit. You'll first implement the test setup logic to create
+      a Spring <code class="interfacename">ApplicationContext</code> that
+      bootstraps your application. Then you'll implement the test logic to
+      exercise and verify application behavior.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.system-test-create"></a>3.2.1.&nbsp;Create the system test class</h4></div></div></div><p>Start by creating a new JUnit Test Case called
+        <code class="classname">RewardNetworkTests</code> in the
+        <code class="literal">rewards</code> package inside the
+        <code class="literal">src/test/java</code> source folder. Use the <span class="emphasis"><em>New -&gt; Other -&gt; Java -&gt; JUnit Test Case</em></span> wizard to help
+        you (note that you might need to change the version of JUnit that will
+        be used to 4):</p><div class="mediaobject" align="center"><a name="new-rewardnetworktests"></a><img src="images/JavaConfig-dependency-injection/new-rewardnetworktests.png" align="middle"><div class="caption"><p>Figure 13: Creating the RewardNetworkTests TestCase using the JUnit Test Case wizard</p></div></div><p>Once you have your <code class="classname">RewardNetworkTests</code>
+        class created, move on to the next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.system-test-setup"></a>3.2.2.&nbsp;Implement the test setup logic</h4></div></div></div><p>In this step you'll implement the setup logic needed to run your
+        system test. You'll first create a Spring
+        <code class="interfacename">ApplicationContext</code> that bootstraps your
+        application, then lookup the bean you'll use to invoke the
+        application.</p><p>First, ensure you have a <code class="methodname">public void setUp()</code> method annotated with
+        <code class="interfacename">@org.junit.Before</code>. (this was done for
+        you when you checked the <code class="methodname">setUp()</code> checkbox in
+        JUnit test case wizard)</p><p>Within <code class="methodname">setUp()</code>, create a new
+        <code class="interfacename">AnnotationConfigApplicationContext</code>,
+        providing it the two configuration classes you wish to load, 
+        <code class="filename">RewardsConfig.class</code> and
+        <code class="filename">TestInfrastructureConfig.class</code>. Doing this
+        will bootstrap your application by having Spring create, configure,
+        and assemble all beans defined in those two files.</p><p>Next, ask the context to get the
+        <code class="literal">rewardNetwork</code> bean for you, which represents the
+        entry-point into the rewards application. Assign the bean to a private
+        field of type <code class="interfacename">RewardNetwork</code> you can
+        reference from your test methods.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Be sure to assign the reference to the
+          <code class="literal">rewardNetwork</code> bean to a field of type
+          <code class="interfacename">RewardNetwork</code> and not
+          <code class="classname">RewardNetworkImpl</code>. A Spring
+          <code class="interfacename">ApplicationContext</code> encapsulates the
+          knowledge about which component implementations have been selected
+          for a given environment. By working with a bean through its
+          interface you decouple yourself from implementation complexity and
+          volatility.</p></td></tr></table></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Don't ask the context for beans "internal" to the application.
+          The <code class="interfacename">RewardNetwork</code> is the
+          application's entry-point, setting the boundary for the application
+          defined by a easy-to-use public interface. Asking the context for an
+          internal bean such as a repository or data source is
+          questionable.</p></td></tr></table></div><p>Now verify that Spring can successfully create your application
+        on test <code class="methodname">setUp</code>. To do this, create a public
+        void test method called <code class="methodname">testRewardForDining()</code>
+        and annotate it with <code class="interfacename">@org.junit.Test</code>.
+        Leave the method body blank for now. Then, run your test class by
+        selecting it and accessing <span class="emphasis"><em>Run -&gt; Run As -&gt; JUnit Test</em></span> from the menu bar (you may also use the <span class="emphasis"><em>Alt + Shift + X then T</em></span> shortcut to do this). After your test
+        runs, you should see the green bar indicating
+        <code class="methodname">setUp</code> ran without throwing any exceptions. If
+        you see red, inspect the failure trace in the JUnit view to see what
+        went wrong in the setup logic. Carefully inspect the stack trace-
+        Spring error messages are usually very detailed in describing what
+        went wrong.</p><p>Once you have the green bar, move on to the next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.system-test-implement"></a>3.2.3.&nbsp;Implement the test logic</h4></div></div></div><p>With the test setup logic implemented, you're ready to test your
+        application. In this step, you'll invoke the
+        <code class="interfacename">RewardNetwork.rewardAccountFor(Dining)</code>
+        method to verify all pieces of your application work together to carry
+        out a successful reward operation.</p><p>You will not have to write the Unit Test yourself. Have a look
+        at
+        <code class="methodname">RewardNetworkImplTest.testRewardForDining()</code>.
+        You can just copy and paste its content into
+        <code class="methodname">RewardNetworkTests.testRewardForDining()</code>.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>In a real life application you would not have the same content
+          for both tests. We are making things fast here so you can focus on
+          Spring configuration rather than spending time on writing the test
+          itself.</p></td></tr></table></div><p>You can now run your test in Eclipse. This time you may simply
+        select the green play button on the tool bar to <span class="emphasis"><em>Run Last Launched</em></span> (Ctrl+F11).</p><p>When you have the green bar, congratulations! You've completed
+        this lab. You have just used Spring to configure the components of a
+        realistic Java application and have exercised application behavior
+        successfully in a test environment inside your IDE.</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="spring-intro-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="annotations-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Introduction to Core Spring&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Configuration with annotations</td></tr></table></div></body></html>

@@ -1,0 +1,121 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Integration Testing with Profiles</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="xml-dependency-best-practices.html" title="Dependency Injection Best Practices"><link rel="next" href="aop-lab.html" title="Introducing Aspect Oriented Programming"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="test-lab"></a>Integration Testing with Profiles</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="test-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will refactor the <code class="classname">RewardNetworkTests</code>
+    using Spring's system test support library
+    to simplify and improve the performance of your system.  You will then use
+    Spring profiles to define multiple tests using different implementations of the
+    <code class="classname">AccountRepository</code>, <code class="classname">RestaurantRepository</code>
+    and <code class="classname">RewardRepository</code> for different environments.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>The recommended way of system testing an application configured
+        by Spring</p></li><li><p>How to write multiple test scenarios</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>JUnit</p></li><li><p>Spring's TestContext framework</p></li><li><p>Spring Profiles</p></li></ol></div><p>Estimated time to complete: 30 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="test-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Occasionally, TODO'S defined within XML files may fail to appear in 
+    the <code class="literal">Tasks</code> view (i.e. gaps in the number sequence).  To correct this, 
+    go to <code class="literal">Preferences -&gt; General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+    pane.  Check <code class="literal">Enable searching for Task Tags</code> and click <code class="literal">Clean and Redetect Tasks</code>.
+    On the <code class="literal">Filters</code> tab, ensure XML content type is checked.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="test-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2166"></a>3.1.&nbsp;Refactor to use Spring's TestContext framework (TODO 01)</h3></div></div></div><p>In <code class="classname">rewards.RewardNetworkTests</code> we setup our
+      test-environment using Spring in the <code class="interfacename">@Before</code>
+      <code class="methodname">setUp</code> method.
+      Instead we are going to use Spring's test-runner.  Comment out the 
+      <code class="interfacename">@Before</code> method
+      (highlight the method and use <code class="literal">Ctrl+Shift+C</code>).
+      Now run the test.  You will get a
+      Red bar because the <code class="varname">rewardNetwork</code> field is null.</p><p>One of the central components in the TestContext framework is
+        the <code class="classname">SpringJUnitClassRunner</code>.  Your next step is to
+        tell JUnit to run your test with it and then refactor your
+        test as necessary to work with it.  You will need to
+        add 3 annotations just like the example in
+        the notes.  If you are not sure how to do this - refer to the tips below.
+        </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>In <code class="classname">RewardNetworkTests</code> 
+        add an <code class="interfacename">@RunWith</code> annotation 
+        passing in <code class="classname">SpringJUnit4ClassRunner.class</code> as the
+        default property. Be sure to use
+        <code class="literal">Ctrl+Space</code> to get code completion of this long
+        class name (for example, by typing <code class="literal">SpJ</code> and
+        then pressing <code class="literal">Ctrl+Space</code>)</p></td></tr></table></div><p>Now annotate the test with
+        <code class="interfacename">@ContextConfiguration</code>.
+        Set the <code class="literal">locations</code> property of the annotation
+        to the same Spring Bean file you used in your
+        <code class="methodname">setUp</code> method.
+        Spring's test runner will automatically create (and cache) an
+        <code class="interfacename">ApplicationContext</code> for you.</p><p>One more change left to make: annotate
+        the <code class="varname">rewardNetwork</code> field with
+        <code class="interfacename">@Autowired</code>.</p><p>Now when you run your test the test runner's setup logic will
+        use <span class="emphasis"><em>auto-wiring</em></span> on your test class to set values
+        from the <code class="interfacename">ApplicationContext</code>. This means
+        your <code class="varname">rewardNetwork</code> will be assigned to the
+        <code class="interfacename">RewardNetwork</code> bean from the context
+        automatically.</p><p>Re-run your test in Eclipse and verify you get a green bar. If
+        so, the <code class="varname">rewardNetwork</code> field is being set properly
+        for you. If you don't see green, try to figure out where the problem
+        lies. If you can't figure it out, ask the instructor to help you find
+        the issue.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>When you have the green bar, you've 
+        successfully reconfigured the rewards integration test,
+        and at the same time simplified your system test by
+        leveraging Spring's test support. In addition, the performance of your
+        system test has potentially improved as the
+        <code class="classname">ApplicationContext</code> is now created once per test
+        case run (and cached) instead of once per test method.  This test only
+        has one method so it doesn't make any difference here.</p></td></tr></table></div><p>
+        We can clear up what we no longer need by deleting the
+        <code class="varname">context</code> field and removing the
+        <code class="interfacename">@Before</code>
+        and <code class="interfacename">@After</code> methods.
+        </p><p>
+        Rerun the test and check that "Clearing restaurant cache" appears on the
+        console - this means the <code class="interfacename">@PreDestroy</code> method
+        is still being invoked by Spring.
+        </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2278"></a>3.2.&nbsp;Configure Repository Implementations using Profiles</h3></div></div></div><p>We are now going to modify the test to use different
+      repository implementations - either Stubs or using JDBC.</p><p>
+      First we are going to use the stub repositories in
+      <code class="filename">/src/test/java/rewards/internal</code>.  We need to make
+      them Spring beans by annotating them as repository components.  Follow 
+      <code class="literal">TODO 02</code> and annotate the stub classes with
+      <code class="interfacename">@Repository</code>. 
+      </p><p>If you run <code class="classname">RewardNetworkTests</code> again, it should
+      fail because you have multiple beans of the same type.  To fix this we introduce
+      two profiles.  The stub repositories will belong to the "stub" profile and the
+      existing repositories to the "jdbc" profile.</p><p>Follow all the <code class="literal">TODO 03</code> steps and use the
+      <code class="interfacename">@Profile</code> annotation to put all the repositories
+      in this project into their correct profile - there are 6 repository classes
+      to annotate in total.
+      </p><p>Finally annotate the <code class="classname">RewardNetworkTests</code> class
+      with <code class="interfacename">@ActiveProfiles</code> to make "stub" the active
+      profile. Rerun the test - it should work now.
+      Check the console to see that the stub repository implementations are being used.
+      Notice that the embedded database is also being created even though we don't
+      use it.  We will fix this soon.
+      </p><p>Switch the active-profile to "jdbc" instead (<code class="literal">TODO 04</code>).
+      Rerun the test - it should still
+      work.  Check the console again to see that the JDBC repository implementations
+      are being used.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2320"></a>3.3.&nbsp;Switching between Development and Production Profiles</h3></div></div></div><p>Profiles allow different configurations for different environments such as
+      development, testing, QA (Quality Assurance), UAT (User Acceptance Testing), production and so forth.  In the last step we
+      will introduce two new profiles: "jdbc-dev" and "jdbc-production".  In both cases we will
+      be using the JDBC implementations of our repositories so two profiles will need
+      to be active at once.
+      </p><p>The difference between development and production is typically different
+      infrastructure.  In this case we are going to swap between an in-memory test
+      database and the "real" database defined as a JNDI resource.</p><p>Modify <code class="filename">TestInfrastructureDevConfig.java</code> so that all
+      the beans are members of the profile called "jdbc-dev" (<code class="literal">TODO 05</code>).</p><p>Does <code class="classname">RewardNetworkTests</code> still run OK?  Why not?</p><p>Fix the test by adding the "jdbc-dev" profile to the
+      <code class="interfacename">@ActiveProfiles</code> annotation
+      in <code class="classname">RewardNetworkTests</code> (<code class="literal">TODO 06</code>).  
+      Remember you will need to retain
+      the "jdbc" profile as well.  Rerun the test - it should work again.
+      </p><p>We have already setup the production dataSource for you using a JNDI
+      lookup (see <code class="literal">TODO 07</code>).  We have used a standalone JNDI
+      implementation - normally JNDI would be provided by your JEE container (such as
+      Tomcat or tc Server).</p><p>Change the active profile of <code class="classname">RewardNetworkTests</code>
+      from "jdbc-dev" to "jdbc-production".  Rerun the test, it should still work.  To see
+      what has changed, look at the console and you will see logging from an
+      extra bean called <code class="classname">SimpleJndiHelper</code>.  Switch the profile
+      back to "jdbc-dev" and rerun.  Check the console and note that the
+      <code class="classname">SimpleJndiHelper</code> is no longer used.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2367"></a>3.4.&nbsp;Optional Step - Further Refactoring</h3></div></div></div><p>When no class or XML file is specified, <code class="interfacename">@ContextConfiguration</code>
+          will look for an inner class marked with @Configuration 
+          (If none is found it will also look for an XML file name of
+          <code class="literal">&lt;Classname&gt;-context.xml</code>).  Since the 
+          <code class="literal">TestInfrastructureConfig</code> class is so small anyway,
+          copy the entire class definition, including annotations, to an inner class
+          withing the test class.  Then remove the configuration class reference from
+          the <code class="interfacename">@ContextConfiguration</code> annotation (no property
+          in the brackets). This is an example of convention over configuration.
+          Does the test still run?
+        </p></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="xml-dependency-best-practices.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="aop-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Dependency Injection Best Practices&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Introducing Aspect Oriented Programming</td></tr></table></div></body></html>

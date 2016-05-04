@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ws="http://www.springframework.org/schema/web-services"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services-2.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<context:component-scan base-package="rewards.ws"/>
+	
+	<!-- TODO 07: Enable the WS annotation-driven programming model.  (hint: use ws: namespace) -->
+
+	
+	<ws:dynamic-wsdl id="rewardNetworkDefinition" portTypeName="Rewards"
+	                 locationUri="http://localhost:8080/ws/rewards">
+		<ws:xsd location="/WEB-INF/schemas/reward-network.xsd"/>
+	</ws:dynamic-wsdl>
+	
+	<!-- TODO 08: Deploy this application to the server and start it.
+		 Access http://localhost:8080/rest-ws and ensure that you see a welcome page.
+	-->
+	
+ </beans>

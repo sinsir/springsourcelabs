@@ -1,0 +1,101 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>JDBC Simplification using the JdbcTemplate</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="aop-lab.html" title="Introducing Aspect Oriented Programming"><link rel="next" href="tx-lab.html" title="Transaction Management with Spring"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jdbc-lab"></a>JDBC Simplification using the JdbcTemplate</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jdbc-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will gain experience with Spring's JDBC
+    simplification. You will use a <code class="classname">JdbcTemplate</code> to
+    execute SQL statements with JDBC.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to retrieve data with JDBC</p></li><li><p>How to insert or update data with JDBC</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>The <code class="classname">JdbcTemplate</code> class</p></li><li><p>The <code class="interfacename">RowMapper</code> interface</p></li><li><p>The <code class="interfacename">ResultSetExtractor</code>
+        interface</p></li></ol></div><p>Estimated time to complete: 45 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jdbc-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jdbc-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.jdbc-template-test"></a>3.1.&nbsp;Refactoring a repository to use <code class="classname">JdbcTemplate</code></h3></div></div></div><p>The goal for this lab is to refactor the existing JDBC based
+      repositories from their standard try, catch, finally, try, catch
+      paradigm to using Spring's <code class="classname">JdbcTemplate</code>. The
+      first repository to refactor will be the
+      <code class="classname">JdbcRewardRepository</code>. This repository is the
+      easiest to refactor and will serve to illustrate some of the key
+      features available because of Spring's simplification.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.jdbc-template-test_1"></a>3.1.1.&nbsp;Use <code class="classname">JdbcTemplate</code> in a test to verify insertion</h4></div></div></div><p>(TODO-01) Before making any changes to
+        <code class="classname">JdbcRewardRepository</code>, let's first ensure the
+        existing functionality works by implementing a test.  Open
+        <code class="classname">JdbcRewardRepositoryTests</code> in the
+        <code class="literal">rewards.internal.reward</code> package and notice the
+        <code class="methodname">getRewardCount()</code> method. In this method use
+        the <code class="literal">jdbcTemplate</code> included in the test fixture to
+        query for the number of rows in the <code class="literal">T_REWARD table</code>
+        and return it.</p><p>(TODO-02) In the same class, find the
+        <code class="methodname">verifyRewardInserted(RewardConfirmation, Dining)</code> method. In this method, use the
+        <code class="literal">jdbcTemplate</code> to query for a map of all values in
+        the <code class="literal">T_REWARD</code> table based on the
+        <code class="literal">confirmationNumber</code> of the
+        <code class="classname">RewardConfirmation</code>. The column name to
+        use for the <code class="literal">confirmationNumber</code> in the where clause
+        is <code class="literal">CONFIRMATION_NUMBER</code>.</p><p>Finally run the test class. When you have the green bar, move on
+        to the next step.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.jdbc-reward-refactor"></a>3.1.2.&nbsp;Refactor <code class="classname">JdbcRewardRepository</code> to use <code class="classname">JdbcTemplate</code></h4></div></div></div><p> (TODO-03) We are now going to refactor an existing Repository class 
+        so it can use the <code class="classname">JdbcTemplate</code>. To start find the 
+        <code class="classname">JdbcRewardRepository</code> in
+        the <code class="literal">rewards.internal.reward</code> package. Open the class
+        and add a private field to it of type <code class="literal">JdbcTemplate</code>.
+        In the constructor, instantiate the <code class="literal">JdbcTemplate</code>
+        and assign it to the field you just created.</p><p>Next refactor the
+        <code class="methodname">nextConfirmationNumber()</code> method to use the
+        <code class="classname">JdbcTemplate</code>. This refactoring is a good
+        candidate for using the <code class="methodname">queryForObject(String, Class&lt;T&gt;, Object...)</code> method.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>The <code class="literal">Object...</code> means a variable argument
+          list in Java5. A variable argument list allows you to append an
+          arbitrary number of arguments to a method invocation, including
+          zero.</p></td></tr></table></div><p>Next refactor the <code class="methodname">confirmReward(AccountContribution, Dining)</code> method to use the template. This refactoring is a
+        good candidate for using the <code class="methodname">update(String, Object...)</code> method.</p><p>Once you have completed these changes, run the test class again
+        (<code class="classname">JdbcRewardRepositoryTests</code>) to ensure these
+        changes work as expected. When you have the green bar, move on to the
+        next step.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2817"></a>3.2.&nbsp;Using a <code class="interfacename">RowMapper</code> to create complex objects</h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.jdbc-rowmapper"></a>3.2.1.&nbsp;Use a <code class="interfacename">RowMapper</code> to create <code class="classname">Restaurant</code> objects</h4></div></div></div><p>(TODO-04) In many cases, you'll want to return complex objects from calls
+        to the database. To do this you'll need to tell the
+        <code class="classname">JdbcTemplate</code> how to map a single
+        <code class="interfacename">ResultSet</code> row to an object. In this
+        step, you'll refactor <code class="classname">JdbcRestaurantRepository</code>
+        using a <code class="classname">RowMapper</code> to create
+        <code class="classname">Restaurant</code> objects.</p><p>Before making any changes, run the
+        <code class="classname">JdbcRestaurantRepositoryTests</code> class to ensure
+        that the existing implementation functions correctly. When you have
+        the green bar, move on to the next step.</p><p>Next, find the <code class="classname">JdbcRestaurantRepository</code>
+        in the <code class="literal">rewards.internal.restaurant</code> package. Open
+        this class and again modify it so that it has a
+        <code class="classname">JdbcTemplate</code> field.</p><p>Next create a private inner class called
+        <code class="classname">RestaurantRowMapper</code> that implements the
+        <code class="interfacename">RowMapper</code> interface. Note that this
+        interface has a generic type parameter that should be populated in the
+        implementation. If you've implemented the interface correctly, the
+        class and method declarations should look like Figure 1. The
+        implementation of the <code class="methodname">mapRow(ResultSet, int)</code>
+        method should delegate to the
+        <code class="methodname">mapRestaurant(ResultSet)</code> method.</p><div class="mediaobject" align="center"><img src="images/jdbc-1/restaurantrowmapper.png" align="middle"><div class="caption"><p>Figure 1: <code class="classname">RestaurantRowMapper</code> class
+            and method declarations</p></div></div><p>Next refactor the
+        <code class="methodname">findByMerchantNumber(String)</code> method to use
+        the template. This refactoring is a good candidate for using the
+        <code class="methodname">queryForObject(String, RowMapper&lt;T&gt;, Object...)</code> method.</p><p>Finally run the
+        <code class="classname">JdbcRestaurantRepositoryTests</code> class. When you
+        have the green bar, move on to the next step.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.jdbc-resultsetextractor"></a>3.3.&nbsp;Using a <code class="interfacename">ResultSetExtractor</code> to traverse a <code class="interfacename">ResultSet</code></h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2909"></a>3.3.1.&nbsp;Use a <code class="interfacename">ResultSetExtractor</code> to traverse a <code class="interfacename">ResultSet</code> for creating <code class="classname">Account</code> objects</h4></div></div></div><p>(TODO-05) Sometimes when doing complex joins in a query you'll need to
+        have access to an entire result set instead of just a single row of a
+        result set to build a complex object. To do this you'll need to tell
+        the <code class="classname">JdbcTemplate</code> that you'd like full control
+        over <code class="interfacename">ResultSet</code> extraction. In this step
+        you'll refactor <code class="classname">JdbcAccountRepository</code> using a
+        <code class="interfacename">ResultSetExtractor</code> to create
+        <code class="classname">Account</code> objects.</p><p>Before making any changes run the
+        <code class="classname">JdbcAccountRepositoryTests</code> class to ensure the
+        existing implementation functions properly. When you have the green
+        bar, move on. </p><p>Next find the <code class="classname">JdbcAccountRepository</code> in
+        the <code class="literal">rewards.internal.account</code> package. Open this
+        class and again modify it so that it has a field of type
+        <code class="classname">JdbcTemplate</code>.</p><p>In this repository there are two different methods that need to
+        be refactored. Start by refactoring the
+        <code class="methodname">updateBeneficiaries(Account)</code> method to use
+        the <code class="classname">JdbcTemplate</code>. This refactoring is very
+        similar to the one that you did earlier for the
+        <code class="classname">JdbcRewardRepository</code>.</p><p>Next create a private inner class called
+        <code class="classname">AccountExtractor</code> that implements the
+        <code class="interfacename">ResultSetExtractor</code> interface. Note that
+        this interface also has a generic type parameter that should be
+        populated. The implementation of the
+        <code class="methodname">extractData(ResultSet)</code> method should delegate
+        to the <code class="methodname">mapAccount(ResultSet)</code> method.</p><p>Next refactor the
+        <code class="methodname">findByCreditCard(String)</code> method to use
+        the template. This refactoring is a good candidate for using the
+        <code class="methodname">query(String, ResultSetExtractor&lt;T&gt;, Object...)</code> method.</p><p>Finally run the
+        <code class="classname">JdbcAccountRepositoryTests</code> class. When you have
+        the green bar, you've completed the lab! </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top">Note that all three repositories still have a <code class="classname">DataSource</code> field. Now that you're using the constructor to instantiate the <code class="classname">JdbcTemplate</code>, you do not need the <code class="classname">DataSource</code> field anymore. For completeness' sake, you can remove the <code class="classname">DataSource</code> fields if you like. </td></tr></table></div></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="aop-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="tx-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Introducing Aspect Oriented Programming&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Transaction Management with Spring</td></tr></table></div></body></html>

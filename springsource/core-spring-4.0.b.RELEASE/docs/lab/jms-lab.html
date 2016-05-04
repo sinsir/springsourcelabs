@@ -1,0 +1,136 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Simplifying Messaging with Spring JMS</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="rest-ws-lab.html" title="Building RESTful applications with Spring MVC"><link rel="next" href="jmx-lab.html" title="JMX Management of Performance Monitor"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jms-lab"></a>Simplifying Messaging with Spring JMS</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jms-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
+        In this lab you will gain experience with Spring's JMS support.
+        You will complete an implementation of a <code class="classname">DiningBatchProcessor</code> that sends dining 
+        event notifications to the reward network as messages. You will also configure a logger to receive the 
+        reward confirmations asynchronously.
+  </p><p>
+   </p><div class="mediaobject" align="center"><img src="images/jms-1/batch-processing-jms.png" align="middle"><div class="caption"><p>
+      Figure 1: The batch processing of dining events with asynchronous messaging.
+     </p></div></div><p>
+  </p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to configure JMS resources with Spring</p></li><li><p>How to send messages with Spring's JmsTemplate</p></li><li><p>How to configure a Spring message listener container</p></li><li><p>How to delegate Message content to a plain Java object</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>JmsTemplate</p></li><li><p>The jms:xxx namespace</p></li></ol></div><p>
+   Estimated time to complete: 45 minutes
+  </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jms-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jms-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>
+   The instructions for this lab are organized into five sections.  In the first section, you will establish
+   the messaging infrastructure. In the second section, you will learn how to send dining notifications as 
+   messages. In the third and fourth sections, you will define and configure listeners to enable message 
+   reception by <span class="emphasis"><em>Message-Driven POJOs</em></span>. In the final section, you will complete a test case 
+   to verify that the batch of dining notifications is successfully producing the corresponding confirmation 
+   messages.
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5237"></a>3.1.&nbsp;Providing the messaging infrastructure</h3></div></div></div><p>
+    In this section you will configure the necessary infrastructure to support the Reward Network in a 
+    messaging environment.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.connection-factory"></a>3.1.1.&nbsp;Define the <code class="classname">ConnectionFactory</code></h4></div></div></div><p>(TODO-01) In JMS-based applications, the Connection is obtained from a <code class="classname">ConnectionFactory</code>. 
+     Spring's JMS support will handle the resources, but it does require a <code class="classname">ConnectionFactory</code>
+     bean definition. In this step you will provide exactly that.
+    </p><p>
+     Open the <code class="literal">JmsInfrastructureConfig</code> class in the <code class="literal">config</code>
+     package. Provide a bean definition there for an instance of 
+     <code class="classname">org.apache.activemq.ActiveMQConnectionFactory</code>. Also provide a value for
+     the <code class="literal">brokerURL</code> property.
+     </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>For this simple lab, you will be using an embedded broker with persistence disabled.
+       In ActiveMQ, the <code class="literal">brokerURL</code> should be 'vm://embedded?broker.persistent=false'.
+      </p></td></tr></table></div><p>
+    </p><p>
+     When you've done this, move on to the next step!
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.message-queues"></a>3.1.2.&nbsp;Define the message queues</h4></div></div></div><p>(TODO-02) Now you will need to create two queues, one for handling dining notifications and the other for handling
+     the reward confirmations. Create two bean definitions of type <code class="classname">org.apache.activemq.command.ActiveMQQueue</code>
+     and call them "diningQueue" and "confirmationQueue". Provide a unique name for each queue using constructor injection. 
+    </p><p>You are now ready to move on to the next section.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5288"></a>3.2.&nbsp;Sending Messages with <code class="classname">JmsTemplate</code></h3></div></div></div><p>
+    In the previous section you configured a queue for dining notifications.  In this section you will provide the necessary code
+    to send dining notifications to that queue from a batch processor.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.jms-template-dependency"></a>3.2.1.&nbsp;Establish a dependency on <code class="classname">JmsTemplate</code></h4></div></div></div><p>(TODO-03) Navigate to the <code class="classname">JmsDiningBatchProcessor</code> within the <code class="literal">rewards/jms/client</code> package.
+     This class will be responsible for sending the dining notifications via JMS. Provide a field for an instance of Spring's
+     <code class="classname">JmsTemplate</code> so that you will be able to use its convenience method to send messages. Add a setter or constructor to 
+     allow you to set this dependency later via dependency injection.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.batch-send"></a>3.2.2.&nbsp;Implement the batch sending</h4></div></div></div><p>(TODO-04) Now complete the implementation of the <code class="methodname">processBatch(..)</code> method by calling the one-line
+     convenience method provided by the <code class="classname">JmsTemplate</code> for each <code class="classname">Dining</code> 
+     in the collection.
+     </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>
+       Here you can rely on the template's default message conversion strategy. The <code class="classname">Dining</code>
+       instance will be automatically converted into a JMS <code class="classname">ObjectMessage</code>.
+      </p></td></tr></table></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.template-bean"></a>3.2.3.&nbsp;Define the template's bean definition</h4></div></div></div><p>(TODO-05) Open the <code class="literal">ClientConfig</code> class within the <code class="literal">config</code> package.
+     Define a bean definition for the <code class="classname">JmsTemplate</code>. Keep in mind that it will need a 
+     reference to the <code class="classname">ConnectionFactory</code> as well as its destination.
+    </p><p>Once you have defined the bean, inject it into the <code class="classname">JmsDiningBatchProcessor</code> that is already
+     defined in that same file. Then move on to the next section.
+    </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5357"></a>3.3.&nbsp;Configuring the <code class="classname">RewardNetwork</code> as a message-driven object</h3></div></div></div><p>In the previous section you implemented the dining notification sending. In this section you will provide the necessary
+    configuration for receiving those messages and delegating their content to the <code class="classname">RewardNetwork</code>.
+    You will do this using Spring's JMS namespace that was introduced in Spring 2.5.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.sender-listener-container"></a>3.3.1.&nbsp;Define the listener container</h4></div></div></div><p>(TODO-06) Open the <code class="literal">JmsRewardsConfig</code> class within the <code class="literal">config</code> package.
+     In this file you will provide the necessary bean definitions to configure the existing
+     <code class="classname">RewardNetworkImpl</code> as a Message-Driven POJO. No code modifications or new code
+     will be required.
+    </p><p>
+     First define a <code class="literal">listener-container</code> bean definition. The listener-container element
+     is defined in the JMS namespace and can be configured using a variety of attributes, such as the maximum amount
+     of concurrent listener, the transaction manager reference and the connection factory reference. The default for
+     the connection factory reference is <code class="literal">connectionFactory</code> and this is also the name of our connection
+     factory bean, so you don't necessarily have to specify this.</p><p>
+     Within the listener container, define a listener.  The job of the listener is to listen to a queue for
+     incoming messages and call a method on an object, passing the message payload.  The queue we want to listen
+     to is the dining queue defined earlier, use the <code class="literal">destination</code> attribute to specify the
+     name of the queue, not the bean ID of the queue.  (Recall that in JMS, the term destination refers to both 
+     where messages come from as well as where they go to.)  
+     </p><p>Next, the listener should use the <code class="literal">ref</code> 
+     and <code class="literal">method</code> attributes to call the method on the rewardNetwork bean to process the message.  
+     Since there is only one method (rewardAccountFor), you do not necessarily need to specify 
+     the method name. You should also note that this method takes a single argument of type <code class="literal">Dining</code>, which 
+     happens to correspond to the payload of the messages being placed on the dining queue.  Finally,
+     use <code class="literal">response-destination</code> to place the return value from the method, 
+     a <code class="literal">Confirmation</code> object, on the confirmation queue you setup earlier.  
+     Again, indicate the name of the queue, not the reference to the bean ID.
+    </p><p>
+     Once you have configured the listener-container, move on to the next step.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.sender-listener-adapter"></a>3.3.2.&nbsp;Define the listener adapter</h4></div></div></div><p>
+     Now that you have the container in place, you can start adding listeners to it. Each listener will have a corresponding
+     <code class="literal">listener</code> element defined <span class="bold"><strong>inside</strong></span> the <code class="literal">listener-container</code>
+     element.
+    </p><p>
+     Define a listener for the <code class="literal">RewardNetwork</code>. The reference of the listener should be set to
+     <code class="literal">rewardNetwork</code>. The method also needs to be set (the method that will handle the reward request).
+    </p><p>
+     You also need to set the queue to which the listener is going to listen. Look up the name of the queue (remember: this is not the bean name)
+     in <code class="literal">JmsInfrastructureConfig</code> and configure the <code class="literal">destination</code> attribute using this name.
+     Since the <code class="literal">rewardAccountFor()</code> method returns an object, we also need to set the
+     <code class="literal">defaultResponseQueueName</code> property. Review the diagram above, lookup the queue name for the destination queue in
+     <code class="literal">JmsInfrastructureConfig</code> and set the <code class="literal">defaultResponseQueueName</code> attribute of the listener element.
+    </p><p>
+     Now that you have configured the <code class="classname">RewardNetworkImpl</code> as a message-driven object, you are ready to 
+     move on to the next section.
+    </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5461"></a>3.4.&nbsp;Receiving the asynchronous reply messages</h3></div></div></div><p>
+    In the previous section, you configured the reward network to receive messages and also to reply automatically to a queue
+    with reward confirmations. Now you will define another Message-Driven POJO so that those confirmations will be received
+    and logged.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.receiver-listener-container"></a>3.4.1.&nbsp;Define the listener container and adapter</h4></div></div></div><p>(TODO-07) Open <code class="literal">ClientConfig</code> and define another listener container and
+     corresponding listener adapter. This time, you should set the destination (source of messages) to
+     the confirmation queue you setup earlier.  The listener should delegate to the <code class="literal">logger</code> 
+     bean that is already provided. Have a look at that class to determine the method name. Also notice that it is a 
+     <code class="literal">void</code> method declaration so there is no need to provide a response destination this time.
+    </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5480"></a>3.5.&nbsp;Testing the message-based batch processor</h3></div></div></div><p>
+    At this point the messaging configuration should be fully established. It is now time to verify that configuration.
+    Luckily a test case is already provided with all but two remaining tasks to complete.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.test-batch"></a>3.5.1.&nbsp;Send the batch of dining notifications</h4></div></div></div><p>(TODO-08) Navigate to the <code class="classname">DiningBatchProcessorTests</code> in the <code class="literal">rewards/jms/client</code>
+     package in the <code class="literal">src/test/java</code> folder. Notice that the class makes use of Spring's support
+     for integration testing and that the <code class="literal">diningBatchProcessor</code> and <code class="literal">confirmationLogger</code>
+     fields will be automatically injected using the <code class="literal">@Autowired</code> annotation..
+    </p><p>
+     In the <code class="methodname">testBatch()</code> method, a number of <code class="classname">Dining</code> objects are being
+     instantiated and added to a <code class="classname">List</code>. Here you simply need to invoke the method that you 
+     implemented previously in the <code class="classname">JmsDiningBatchProcessor</code> class.
+    </p><p>(TODO-09) Finally, provide an assertion to verify that the entire batch was sent and that the
+     <code class="literal">confirmationLogger</code> has received the same number of replies. If this assertion fails then
+     carefully read any exception messages, and work for the green bar.
+     </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+       If you are having trouble and not receiving any useful error messages, then first lower the log 
+       level for <code class="literal">org.springframework.jms</code> in the <code class="literal">log4j.xml</code> file. 
+       If that is still not helpful, then add breakpoints in some logical places (consider where you are
+       sending and receiving messages) and step through with Eclipse's debugger.
+      </p></td></tr></table></div><p>
+    </p><p>
+     Once you have the green bar, you have completed this lab. Congratulations!
+    </p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="rest-ws-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jmx-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Building RESTful applications with Spring MVC&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;JMX Management of Performance Monitor</td></tr></table></div></body></html>

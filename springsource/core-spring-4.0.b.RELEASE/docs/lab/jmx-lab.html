@@ -1,0 +1,74 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>JMX Management of Performance Monitor</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="jms-lab.html" title="Simplifying Messaging with Spring JMS"><link rel="next" href="remoting-lab.html" title="Spring Remoting"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jmx-lab"></a>JMX Management of Performance Monitor</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jmx-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will use JMX to monitor a running application
+    remotely. You will use the
+    <code class="classname">RepositoryPerformanceMonitor</code> to collection
+    performance metrics and expose them via JMX.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to expose a Spring bean as a JMX MBean</p></li><li><p>How to control the management interface of the exposed JMX
+        MBean</p></li><li><p>How to export pre-existing MBeans</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p><code class="classname">@ManagedResource, @ManagedAttribute,
+        @ManagedOperation</code></p></li><li><p><code class="classname">@EnableMBeanExport</code></p></li></ol></div><p>Estimated time to complete: 30 mins</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jmx-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jmx-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5590"></a>3.1.&nbsp;Exposing the <code class="interfacename">MonitorFactory</code> via
+      JMX</h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5596"></a>3.1.1.&nbsp;Assess the initial state of the
+        <code class="classname">JamonMonitorFactory</code></h4></div></div></div><p>Find and open the <code class="classname">JamonMonitorFactory</code>
+        class in the <code class="literal">rewards.internal.monitor.jamon</code>
+        package. Notice that this is an implementation of the
+        <code class="interfacename">MonitorFactory</code> interface that uses the
+        JAMon library to accomplish it's performance monitoring.</p><p>When you are comfortable with the implementation of this class,
+        move on to the next step where you export an instance of this bean via
+        JMX</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5614"></a>3.1.2.&nbsp;Add JMX metadata to the implementation class</h4></div></div></div><p>(TODO 01) Add Spring's JMX annotations <code class="code">@ManagedResource</code>,
+        <code class="code">@ManagedAttribute</code> and <code class="code">@ManagedOperation</code> to
+        the class as well as methods you want to expose via JMX. Use
+        <code class="literal">statistics:name=monitorFactory</code> as name for the bean
+        exposed.</p><p>By placing the data collection and exposure of performance
+        metrics in the <code class="classname">JamonMonitorFactory</code> class, we've
+        ensured that the <code class="classname">RepositoryMonitorFactory</code> is
+        completely decoupled from any reporting mechanism. The
+        <code class="interfacename">MonitorFactory</code> interface is very
+        generic, but allows each implementation strategy to expose any data it
+        sees fit.</p><p>When you have finished exporting the
+        <code class="classname">JamonMonitorFactory</code> class to JMX, move on the
+        next step</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5647"></a>3.1.3.&nbsp;Activate annotation driven JMX in application
+        configuration</h4></div></div></div><p>(TODO 2)  Find and open the <code class="filename">AspectsConfig</code> class
+        in the <code class="literal">config</code> package. In this
+        file activate annotation driven JMX by adding the appropriate annotation.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5658"></a>3.1.4.&nbsp;Start the MBeanServer and deploy the web application</h4></div></div></div><p>In this step, you will deploy the project as a web application
+        as described <a href="appendix-wtp-server.html" title="Appendix&nbsp;C.&nbsp;Using Web Tools Platform (WTP)">Appendix&nbsp;C, <i>Using Web Tools Platform (WTP)</i></a>. However,
+        before you can do that, you must tell the Java VM to start an
+        <code class="interfacename">MBeanServer</code>. To do this, open the
+        Window menu, go to "Preferences...", then select "Java &gt; Installed
+        JREs" on the left. Select "Edit..." for the JRE that you are using and
+        add <code class="literal">-Dcom.sun.management.jmxremote</code> as a VM
+        argument. This value instructs the JVM to start the internal
+        MBeanServer and also allows connections to it via shared memory, so
+        that when you run <code class="literal">jconsole</code> it will see the process
+        and allow you to directly connect to it, instead of needing to use a
+        socket connection, with a name/password required.</p><p>Now deploy the project as a web application. Once deployed, open
+        <a href="http://localhost:8080/jmx-1" target="_top">http://localhost:8080/jmx</a>
+        in your browser. You should see the welcome page display containing a
+        form that submits to the RewardServlet.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5680"></a>3.1.5.&nbsp;View the monitor statistics using JConsole</h4></div></div></div><p>From the command line of your system, or Windows Explorer, run
+        the <code class="literal">$JDK_HOME/bin/jconsole</code> application. When this
+        application starts up, choose the process that identifies your web
+        application and open it.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>If you can not see the process you started, in
+          <code class="literal">jconsole</code>, it is possible you do not have adequate
+          security rights in your environment. In this case, you will have to
+          connect to the process via a socket connection instead. In the VM
+          arguments tab of your launch configuration, add the following
+          arguments:</p><pre class="programlisting">-Dcom.sun.management.jmxremote.port=8181
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false</pre><p>Then restart the process, and connect via
+          <code class="literal">jconsole</code> by using the 'Remote' tab, specifying a
+          host of <code class="literal">localhost</code> and port of
+          <code class="literal">8181</code>.</p></td></tr></table></div><p>Once connected to the application, navigate to the
+        <code class="literal">MBeans</code> tab and find the MBean you exported.</p><div class="mediaobject" align="center"><img src="images/jmx-1/monitor-factory-mbean.png" align="middle"><div class="caption"><p>Figure 1: The <code class="literal">MonitorFactory</code> MBean</p></div></div><p>Once you have found the MBean, execute a few rewards operations
+        in the browser and refresh the MBean attributes. You should see
+        something similar to this</p><div class="mediaobject" align="center"><img src="images/jmx-1/monitor-factory-attributes-2.png" align="middle"><div class="caption"><p>Figure 2: The <code class="literal">MonitorFactory</code>
+            attributes</p></div></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Double clicking on any scalar value will create a graph over
+          time</p><div class="mediaobject" align="center"><img src="images/jmx-1/scalar-value-graph.png" align="middle"><div class="caption"><p>Figure 3: Scalar value graph</p></div></div></td></tr></table></div><p>Explore the attributes and operations of the MBean and when you
+        are finished move to the next section</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5743"></a>3.2.&nbsp;Exporting pre-defined MBeans</h3></div></div></div><p>By using Spring's <code class="literal">@EnableMBeanExport</code> element
+      you not only have triggered annotation based JMX export. The element
+      will also pick up classes that follow JMX naming conventions (a class
+      implementing an interface <code class="code">${className}MBean</code>).</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5754"></a>3.2.1.&nbsp;View the Hibernate statistics bean</h4></div></div></div><p>In your JConsole you should now see a
+        <code class="literal">org.hibernate.jmx</code> folder that includes the
+        StatisticsService. Be sure to activate it by flipping the
+        <code class="literal">StatisticsEnabled</code> flag. Now issue a few queries and
+        refresh the statistics service. You should see the updates.</p><p>Once you have completed this step, you have completed the
+        lab.</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jms-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="remoting-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Simplifying Messaging with Spring JMS&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Spring Remoting</td></tr></table></div></body></html>

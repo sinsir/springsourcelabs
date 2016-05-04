@@ -1,0 +1,35 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Appendix&nbsp;B.&nbsp;Eclipse Tips</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="spring-configuration.html" title="Appendix&nbsp;A.&nbsp;Spring XML Configuration Tips"><link rel="next" href="appendix-wtp-server.html" title="Appendix&nbsp;C.&nbsp;Using Web Tools Platform (WTP)"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="eclipse"></a>Appendix&nbsp;B.&nbsp;Eclipse Tips</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e6983"></a>B.1.&nbsp;Introduction</h2></div></div></div><p>This section will give you some useful hints for using
+    Eclipse.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="package-explorer-tip"></a>B.2.&nbsp;Package Explorer View</h2></div></div></div><p>Eclipse's Package Explorer view offers two ways of displaying
+    packages. Flat view, used by default, lists each package at the same
+    level, even if it is a subpackage of another. Hierarchical view, however,
+    will display subpackages nested within one another, making it easy to hide
+    an entire package hierarchy. You can switch between hierarchical and flat
+    views by selecting the menu inside the package view (represented as a
+    triangle), selecting either Flat or Hierarchical from the Package
+    Presentation submenu. </p><div class="mediaobject" align="center"><img src="images/eclipse/select-hierarchical-view.png" align="middle"><div class="caption"><p> Switch between hierarchical and flat views by
+        selecting the menu inside the package view (represented as a
+        triangle), selecting either Flat or Hierarchical from the Package
+        Presentation submenu </p></div></div><p> </p><div class="mediaobject" align="center"><img src="images/eclipse/hierarchical-view.png" align="middle"><div class="caption"><p>The hierarchical view shows nested packages in a tree
+        view</p></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="unimplemented-methods-tip"></a>B.3.&nbsp;Add Unimplemented Methods</h2></div></div></div><p>
+      </p><div class="mediaobject" align="center"><img src="images/eclipse/add-unimplemented-methods.png" align="middle"><div class="caption"><p>"Add unimplemented methods" quick fix</p></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="field-autocomplete-tip"></a>B.4.&nbsp;Field Auto-Completion</h2></div></div></div><p>
+      </p><div class="mediaobject" align="center"><img src="images/eclipse/field-autocomplete.png" align="middle"><div class="caption"><p>Field name auto-completion</p></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="constructor-from-fields-tip"></a>B.5.&nbsp;Generating Constructors From Fields</h2></div></div></div><p>
+      </p><div class="mediaobject" align="center"><img src="images/eclipse/constructors-from-fields.png" align="middle"><div class="caption"><p>"Generate Constructor using Fields" using the Source Menu (ALT
+          + SHIFT + S)</p></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="field-naming"></a>B.6.&nbsp;Field Naming Conventions</h2></div></div></div><p>A field's name should describe the role it provides callers, and
+    often corresponds to the field's type. It should not describe
+    implementation details. For this reason, a bean's name often corresponds
+    to its service interface. For example, the class JdbcAccountRepository
+    implements the AccountRepository interface. This interface is what callers
+    work with. By convention, then, the bean name should be
+    accountRepository.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="tasks-tip"></a>B.7.&nbsp;Tasks View</h2></div></div></div><div class="mediaobject" align="center"><img src="images/eclipse/tasks.png" align="middle"><div class="caption"><p>The tasks view in the bottom right page area</p></div></div><p>You can configure the Tasks View to only show the tasks relevant to
+    the current project. In order to do this, open the dropdown menu in the
+    upper-right corner of the tasks view (indicated by the little triangle)
+    and select 'Configure Content...'. Now select the TODO configuration and
+    from the Scopes, select 'On any element in same project'. Now if you have
+    multiple project opened, with different TODOs, you will only see those
+    relevant to the current project.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="rename-file-tip"></a>B.8.&nbsp;Rename a File</h2></div></div></div><p></p><div class="mediaobject" align="center"><img src="images/eclipse/rename-file.png" align="middle"><div class="caption"><p>Renaming a Spring configuration file using the Refactor
+        command</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="spring-configuration.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="appendix-wtp-server.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Appendix&nbsp;A.&nbsp;Spring XML Configuration Tips&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Appendix&nbsp;C.&nbsp;Using Web Tools Platform (WTP)</td></tr></table></div></body></html>

@@ -1,0 +1,247 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Building RESTful applications with Spring MVC</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="security-lab.html" title="Securing the Web Tier"><link rel="next" href="jms-lab.html" title="Simplifying Messaging with Spring JMS"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="rest-ws-lab"></a>Building RESTful applications with Spring MVC</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="rest-ws-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
+      In this lab you'll use some of the features that were added in Spring 3.0 to support RESTful
+			web services. Note that there's more than we can cover in this lab, please refer back to the
+			presentation for a good overview. 
+    </p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>Working with RESTful URLs that expose resources</p></li><li><p>Mapping request- and response-bodies using HTTP message converters</p></li><li><p>Writing a programmatic HTTP client to consume RESTful web services</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>Processing URI Templates using <code class="interfacename">@PathVariable</code></p></li><li><p>Using <code class="interfacename">@RequestBody</code> and <code class="interfacename">@ResponseBody</code></p></li><li><p>Using the <code class="classname">RestTemplate</code></p></li></ol></div><p>Estimated time to complete: 40 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="rest-ws-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Occasionally, TODO'S defined within XML files may fail to appear in 
+    the <code class="literal">Tasks</code> view (i.e. gaps in the number sequence).  To correct this, 
+    go to <code class="literal">Preferences -&gt; General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+    pane.  Check <code class="literal">Enable searching for Task Tags</code> and click <code class="literal">Clean and Redetect Tasks</code>.
+    On the <code class="literal">Filters</code> tab, ensure XML content type is checked.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="rest-ws-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>
+      The instructions for this lab are organized into sections. In the first section you'll
+			add support for retrieving a JSON-representation of accounts and their beneficiaries and test
+			that using the <code class="classname">RestTemplate</code>. In the second section you'll add support
+			for making changes by adding an account and adding and removing a beneficiary. 
+			The optional bonus section will let you map an existing exception to a specific HTTP status
+			code.
+    </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4791"></a>3.1.&nbsp;Exposing accounts and beneficiaries as RESTful resources</h3></div></div></div><p>
+        In this section you'll expose accounts and beneficiaries as RESTful resources using Spring's
+				URI template support, HTTP Message Converters and the <code class="classname">RestTemplate</code>.
+      </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4799"></a>3.1.1.&nbsp;Inspect the current application</h4></div></div></div><p>(TODO-01) First open the <code class="filename">web.xml</code> deployment descriptor to see how the
+					application is bootstrapped: the <code class="filename">RootConfig</code> class
+					contains the necessary configuration for the root context, which contains a
+					<code class="literal">accountManager</code> bean that provides transactional data access operations
+					to manage <code class="classname">Account</code> instances. The
+					<code class="filename">MvcConfig</code> class contains the configuration for Spring
+					MVC, and since it uses component scanning of the <code class="literal">accounts.web</code> package
+					it will define a bean for the <code class="classname">AccountController</code> class. The
+					<code class="literal">&lt;mvc:annotation-driven/&gt;</code> element ensures that a number of default
+					HTTP Message Converters will be defined and that we can use the
+					<code class="interfacename">@RequestBody</code> and
+					<code class="interfacename">@ResponseBody</code> annotations in our controller methods.
+				</p><p>
+					Under the <code class="filename">src/test/java</code> source folder you'll find an
+					<code class="classname">AccountClientTests</code> JUnit test case: this is what you'll use to
+					interact with the RESTful web services on the server. 
+				</p><p>
+					Finally, deploy the application to your local server, start the server and
+					verify that the application deployed successfully by accessing 
+					<a href="http://localhost:8080/rest-ws" target="_top">http://localhost:8080/rest-ws</a>
+					from a browser. When you see the welcome page, the application was started successfully.
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4847"></a>3.1.2.&nbsp;Expose the list of accounts</h4></div></div></div><p>(TODO-02) Open the <code class="classname">AccountController</code>. Notice 
+				that it offers several methods
+				to deal with various requests to access certain resources. 
+				Add the necessary annotations to the
+				<code class="methodname">accountSummary</code> method to make it respond to GET requests to
+				<code class="literal">/accounts</code>. 
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+							You need one annotation to map the method to the correct URL and HTTP Method, and
+							another one to ensure that the result will be written to the HTTP response by an HTTP
+							Message Converter (instead of an MVC View). 
+						</p></td></tr></table></div><p>
+				</p><p>
+					When you've done that, save all work and restart the server.  Now try to access 
+					<a href="http://localhost:8080/rest-ws/app/accounts" target="_top">http://localhost:8080/rest-ws/app/accounts</a>
+					from that same browser. Depending on the browser used, you may see the response inline 
+					or you may see a popup asking you what to do with the response:
+					save it to a local file and open that in a local text editor (Notepad is available on
+					every Windows machine). You'll see that you've just received a response using a JSON
+					representation (JavaScript Object Notation). How is that possible? 
+				</p><p>
+					The reason is that the project includes the Jackson library on its classpath:
+					</p><div class="mediaobject" align="center"><img src="images/rest-ws/classpath.png" align="middle"><div class="caption"><p>
+								Figure 1: The Jackson library is on the classpath
+							</p></div></div><p>
+					If this is the case, an HTTP Message Converter that uses Jackson will be active by default
+					when you specify <code class="literal">&lt;mvc:annotation-driven/&gt;</code>. The library mostly 'just
+					works' with our classes without further configuration: if you're interested you can have a
+					look at the <code class="classname">MonetaryAmount</code> and <code class="classname">Percentage</code>
+					classes and search for the Json annotations to see the additional configuration. 
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4888"></a>3.1.3.&nbsp;Retrieve the list of accounts using a <code class="classname">RestTemplate</code></h4></div></div></div><p>
+					(TODO 03) A client can process the shown JSON contents anyway it sees fit. In our case, we'll rely
+					on the same HTTP Message Converter to deserialize the JSON contents back into
+					<code class="classname">Account</code> objects. Open the <code class="classname">AccountClientTests</code>
+					class under the <code class="filename">src/test/java</code> source folder in the
+					<code class="literal">accounts.client</code> package. This class uses a plain
+					<code class="classname">RestTemplate</code> to connect to the server. Use the supplied template to
+					retrieve the list of accounts from the server, from the same URL that you used in your
+					browser. 
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+							You can use the <code class="varname">BASE_URL</code> variable to come up with the
+							full URL to use. 
+						</p></td></tr></table></div><p>
+					</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>
+							We cannot assign to a <code class="literal">List&lt;Account&gt;</code> here, since Jackson won't
+							be able to determine the generic type to deserialize to in that case: therefore we use
+							an <code class="literal">Account[]</code> instead.
+						</p></td></tr></table></div><p>
+					When you've completed this <code class="literal">TODO</code>, run the test and make sure that the
+					<code class="methodname">listAccounts</code> test succeeds. You'll make the other test methods
+					pass in the following steps. 
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4933"></a>3.1.4.&nbsp;Expose a single account</h4></div></div></div><p>
+					(TODO 04) To expose a single account, we'll use the same <code class="literal">/accounts</code> URL followed
+					by the <code class="literal">entityId</code> of the <code class="classname">Account</code>, e.g.
+					<code class="literal">/accounts/1</code>. Switch back to the
+					<code class="classname">AccountController</code> and complete the 
+					<code class="methodname">accountDetails</code> method. 
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+							Since the <code class="literal">{accountId}</code> part of the URL is variable, use the
+							<code class="interfacename">@PathVariable</code> annotation to extract its value from the
+							URI template that you use to map the method to GET requests to the given URL. 
+						</p></td></tr></table></div><p>
+					If you want to test your code, just try to access 
+					<a href="http://localhost:8080/rest-ws/app/accounts/0" target="_top">http://localhost:8080/rest-ws/app/accounts/0</a>
+					to verify the result. 
+				</p><p>
+					(TODO 05) When you're done with the controller, complete the
+					<code class="classname">AccountClientTests</code> by retrieving the account with id 0.
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+							The <code class="classname">RestTemplate</code> also supports URI templates, so use one and
+							pass 0 as a the value for the <code class="varname">urlVariables</code> varargs parameter. 
+						</p></td></tr></table></div><p>
+					Run the test and ensure that the <code class="methodname">getAccount</code> test now succeeds as
+					well.
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4987"></a>3.1.5.&nbsp;Create a new account</h4></div></div></div><p>
+					So far we've only exposes resources by responding to GET methods: now you'll add support
+					for creating a new account as a new resource.
+				</p><p>
+					(TODO 06) Implement the
+					<code class="methodname">createAccount</code> method is mapped to POSTs to
+					<code class="literal">/accounts</code>. The body of the POST will contain a JSON representation of
+					an <code class="classname">Account</code>, just like the representation that our client received
+					in the previous step: make sure to annotate the <code class="varname">account</code>
+					method parameter appropriately to let the request's body be deserialized! 
+					When the method completes successfully, the client should receive a <code class="literal">201
+					Created</code> instead of <code class="literal">200 OK</code>, so annotate the method to make
+					that happen as well.
+				</p><p>
+					(TODO 07) RESTful clients that receive a <code class="literal">201 Created</code> response will expect a
+					<code class="literal">Location</code> header in the response containing the URL of the newly created
+					resource. Complete the TODO by setting that header on the response.
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+							To help you coming up with the full URL on which the new account can be accessed,
+							we've provided you with a helper method called
+							<code class="methodname">getLocationForChildResource</code>. Since URLs of newly created
+							resources are usually relative to the URL that was POSTed to, you only need to pass in
+							the original request and the identifier of the new child resource that's used in the
+							URL and the method will return the full URL, applying URL escaping if needed. This way
+							you don't need to hard-code things like the server name and servlet mapping used in
+							the URL in your controller code!
+						</p></td></tr></table></div><p>
+				</p><p>
+					(TODO 08 - 09) When you're done, complete the test method by POSTing the given
+					<code class="classname">Account</code> to the <code class="literal">/accounts</code> URL. The
+					<code class="classname">RestTemplate</code> has two methods for this: use the one that returns the
+					location of the newly created resource and assign that to a variable. Then complete
+					<code class="literal">TODO 09</code> by retrieving the new account on the given location. The
+					returned <code class="classname">Account</code> will be equal to the one you POSTed, but will also 
+					have received an <code class="varname">entityId</code> when it was saved to the database. 
+				</p><p>
+					Run the tests again and see if the <code class="methodname">createAccount</code> test runs
+					successfully. Regardless of whether this is the case or not, proceed with the next step!
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5052"></a>3.1.6.&nbsp;Seeing what happens at the HTTP level</h4></div></div></div><p>
+					(TODO 10) If your test did not work, you may be wondering what caused an error. Because of all the
+					help that you get from Spring, it's actually not that easy to see what's happening at the
+					HTTP transport level in terms of requests and responses when you exercise the application.
+					For debugging or monitoring HTTP traffic, Eclipse ships with a built-in tool that can be
+					of great value: the TCP/IP Monitor. To open this tool, which is just an Eclipse View,
+					press Ctrl+3 and type 'tcp' in the resulting popup window; then press Enter to open the
+					TCP/IP Monitor View. 
+					Click the small arrow pointing downwards and choose "properties".
+					</p><div class="mediaobject" align="center"><img src="images/rest-ws/monitor-properties.png" align="middle"><div class="caption"><p>
+								Figure 2: The "properties" menu entry of the TCP/IP Monitor view
+							</p></div></div><p>
+				</p><p>
+					Choose "Add..." to add a new monitor. As local monitoring port, enter 8081 since this port is
+					probably unused. As host name, enter "localhost" and as port enter 8080 since this is the
+					port that Tomcat is running on. Press OK and then press "Start" to start the newly defined
+					monitor.
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Don't forget to start the monitor after adding it!</p></td></tr></table></div><p>
+				</p><p>
+					Now switch to the <code class="classname">AccountClientTests</code> and change the
+					<code class="varname">BASE_URL</code>'s port number to 8081 so all requests pass through the
+					monitor. 
+					</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>
+							This assumes that you've used that variable to construct all your URLs: if that's not
+							the case, then make sure to update the other places in your code that contain the port
+							number as well!
+						</p></td></tr></table></div><p>
+				</p><p>
+					Now run the tests again and switch back to the TCP/IP Monitor View (double-click on the
+					tab's title to maximize it if it's too small). You'll see your requests and corresponding
+					responses. Click on the small menu arrow again and now choose 'Show Header': this will
+					also show you the HTTP headers, including the Location header you speficied for the
+					response to the POST that created a new account.
+					</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>
+							Actually, there's one request missing: the request to retrieve the new account. This
+							is because the monitor rewrites the request to use port 8080, which means the Location
+							header will include that port number instead of the 8081 the original request was made to.
+							We won't try to fix that in this lab, but it wouldn't be too hard to come up with some
+							interceptor that changes the port number to make all requests pass through the filter.  
+						</p></td></tr></table></div><p>
+				</p><p>
+					If your <code class="methodname">createAccount</code> test method didn't work yet, then use the
+					monitor to debug it. Proceed to the next step when the test runs successfully.
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5093"></a>3.1.7.&nbsp;Create and delete a beneficiary</h4></div></div></div><p>
+					(TODO 11) Complete the
+					<code class="methodname">addBeneficiary</code> method in the
+					<code class="classname">AccountController</code>. This is similar to what you did in the previous
+					step, but now you also have to use a URI template to parse the accountId. Make sure to
+					return a <code class="literal">201 Created</code> status again! This time, the response's body will
+					only contain the name of the beneficiary: an HTTP Message Converter that will convert this
+					to a <code class="classname">String</code> is enabled by default, so simply annotate the method
+					parameter again to obtain the name. 
+				</p><p>
+					(TODO 12) Set the Location header to the URL of the new beneficiary.
+					</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>
+							As you can see in the <code class="methodname">getBeneficiary</code> method, the name of the
+							beneficiary is used to identify it in the URL.
+						</p></td></tr></table></div><p>
+				</p><p>
+					(TODO 13) Complete the
+					<code class="methodname">removeBeneficiary</code> method. This time, return a <code class="literal">204 No
+					Content</code> status. 
+				</p><p>
+					(TODO 14 - 17) To test your work, switch to the <code class="classname">AccountClientTests</code> 
+					and complete the TODOs. When you're done, run the test and verify that this
+					time all test methods run successfully. If this is the case, you've completed the lab!
+				</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5132"></a>3.1.8.&nbsp;BONUS (Optional): return a 409 Conflict when creating an account with an existing number</h4></div></div></div><p>
+					(TODO 18) The current test ensures that we always create a new account using a unique number. Let's
+					change that and see what happens. Edit the <code class="methodname">createAccount</code> method
+					in the test case to use a fixed account number, like <code class="literal">"123123123"</code>. Run
+					the test: the first time it should succeed. Run the test again: this time it should fail.
+					When you look at the exception in the JUnit View or at the response in the TCP/IP monitor,
+					you'll see that the server returned a <code class="literal">500 Internal Server Error</code>. If you
+					look in the Console View for the server, you'll see what caused this: a
+					<code class="classname">DataIntegrityViolationConstraint</code>, ultimately caused by a
+					<code class="classname">SQLException</code> indicating that the number is violating a unique
+					constraint. 
+				</p><p>
+					This isn't really a server error: this is caused by the client providing us with
+					conflicting data when attempting to create a new account. To properly indicate that to the
+					client, we should return a <code class="literal">409 Conflict</code> rather than the
+					<code class="literal">500 Internal Server Error</code> that's returned by default for uncaught
+					exceptions. To make it so, add a new exception
+					handling method that returns the correct code in case of a
+					<code class="classname">DataIntegrityViolationConstraint</code>.
+					</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+							Have a look at the existing <code class="methodname">handleNotFound</code> method for a way
+							to do this.
+						</p></td></tr></table></div><p>
+					When you're done, run the test again (do it twice as the database will re-initialize on
+					redeploy) and check that you now receive the correct status code. Optionally you can even
+					restore the test method and create a new test method that verifies the new behavior.
+				</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="security-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jms-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Securing the Web Tier&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Simplifying Messaging with Spring JMS</td></tr></table></div></body></html>

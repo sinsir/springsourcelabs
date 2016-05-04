@@ -1,0 +1,233 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>JPA Simplification using Spring</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="tx-lab.html" title="Transaction Management with Spring"><link rel="next" href="mvc-lab.html" title="Spring MVC Essentials"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jpa-lab"></a>JPA Simplification using Spring</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jpa-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will implement the repositories of the rewards
+    application with the Java Persistence API (JPA). You'll configure JPA to
+    map database rows to objects, use JPA APIs to query objects, and write
+    tests to verify mapping behavior.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to configure domain objects with annotations to map these to
+        relational structures</p></li><li><p>How to use the JPA APIs to query objects</p></li><li><p>How to configure JPA in a Spring environment</p></li><li><p>How to test JPA-based repositories</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>JPA Annotations</p></li><li><p><code class="interfacename">EntityManagerFactory</code> and
+        <code class="interfacename">EntityManager</code></p></li><li><p><code class="classname">LocalContainerEntityManagerFactoryBean</code></p></li></ol></div><p>Estimated time to complete: 60 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jpa-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Refer to <code class="filename">schema.sql</code> for help with table and column names.</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="rewardDining-databaseSchema-jpa_11"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/jpa-1/rewardDining-databaseSchema.png" align="middle" alt="Rewards Database Schema"><div class="caption"><p>The database schema for this lab, showing the credit card
+          number as part of the account table.</p></div></div></div><p class="title"><b>Figure&nbsp;14.&nbsp;Rewards Database Schema</b></p></div><br xmlns="" class="figure-break"></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jpa-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>The instructions for this lab are organized into three sections. The
+    first two sections focus on using JPA within a <span class="emphasis"><em>domain module</em></span> of the application. The first addresses the
+    <code class="classname">Account</code> module, and the second addresses the
+    <code class="classname">Restaurant</code> module. In each of these sections,
+    you'll map that module's domain classes using JPA annotations, implement a
+    JPA-based repository, and unit test your repository to verify JPA mapping
+    behavior. In the third and final section, you'll integrate JPA (with
+    Hibernate) into the application configuration and run a top-down system
+    test to verify application behavior.</p><p>In the <code class="classname">Account</code> module there has been a design
+    change in the underlying database that is relevant to the JPA mapping. The
+    design team for the reward network has determined that each account only
+    ever has one credit card number. The schema has been modified to reflect
+    the modeling change (see <a href="jpa-lab.html#rewardDining-databaseSchema-jpa" title="Figure&nbsp;15.&nbsp;Rewards Database Schema">Figure&nbsp;15</a> below), and you can use this fact to simplify
+    the JPA mapping of the <code class="classname">Account</code> entity.</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="rewardDining-databaseSchema-jpa"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/jpa-1/rewardDining-databaseSchema.png" align="middle" alt="Rewards Database Schema"><div class="caption"><p>The database schema for this lab, showing the credit card
+          number as part of the account table.</p></div></div></div><p class="title"><b>Figure&nbsp;15.&nbsp;Rewards Database Schema</b></p></div><br xmlns="" class="figure-break"></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3349"></a>3.1.&nbsp;Using JPA in the Account module</h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.jpa-account"></a>3.1.1.&nbsp;Configure the <code class="classname">Account</code> mapping annotations</h4></div></div></div><p>Recall the <code class="classname">Account</code> entity represents a
+        member account (a diner) in the reward network that can make
+        contributions to its beneficiaries. In this step, you'll configure the
+        JPA mapping annotations that map the Account object graph to the
+        database.</p><div class="orderedlist"><ol type="1"><li><p>Open <code class="classname">Account</code> class in the
+            <code class="literal">rewards.internal.account</code> package. As you can
+            see this class doesn't have any annotations in it. Let's add JPA
+            annotations to specify the object-to-relational mapping
+            rules.</p></li><li><p>(TODO-01) Add an <code class="classname">Entity</code> annotation on this
+            class to specifiy that this class will be loaded from the database
+            using the JPA implementation. As a default JPA treats the class
+            name as the table name (in this case it would be
+            <code class="literal">ACCOUNT</code>), you need to add a
+            <code class="classname">Table</code> annotation to specify the table to
+            use - in this case our database table is
+            <code class="literal">T_ACCOUNT</code>.</p></li><li><p>(TODO-02) Every entity needs a primary key so it can be managed by
+            JPA. Every table in this lab uses auto-generated numeric keys. A
+            long integer <code class="literal">entityId</code> field has been added to
+            each classes to be mapped. Annotate the
+            <code class="literal">entityId</code> as the Id for this class.</p></li><li><p>We need to tell JPA to let the databaase automatically
+            generate each primary key for us. Add a
+            <code class="classname">GeneratedValue</code> annotation to the
+            <code class="literal">entityId</code>.</p></li><li><p>(TODO-03) By default JPA uses the field name as the column name to map
+            a field into a databased table. Because the column name doesn't
+            match with the field name, we need to override it desired field
+            name.</p></li><li><p>Complete the mapping for the remaining Account fields - the
+            <code class="literal">number</code>, <code class="literal">name</code>,
+            <code class="literal">beneficiaries</code>, and
+            <code class="literal">creditCardNumber</code> properties. Use the
+            reward dining database schema in Figure 1 to help you. </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Since an <code class="classname">Account</code> can have many
+                beneficiaries, its <code class="literal">beneficiaries</code> property
+                is a collection. Map this property as a Java
+                <code class="literal">Set</code> with a <code class="classname">OneToMany</code>
+                annotation. The foreign key column in the beneficiary table is
+                <code class="literal">ACCOUNT_ID</code>.</p></td></tr></table></div></li></ol></div><p>When you have finished mapping the aggregate
+        <code class="classname">Account</code> entity, move on to mapping of its
+        <code class="classname">Beneficiary</code> associate. Recall that an Account
+        distributes contributions to its beneficiaries based on an allocation
+        percentage.</p><div class="orderedlist"><ol type="1"><li><p>(TODO-04) Annotate the <code class="classname">Beneficiary</code> class as a
+            JPA entity and specify its table.</p></li><li><p>Add the mappings for the <code class="literal">entityId</code> and
+            <code class="literal">name</code> fields - refer back to what you have
+            already done for <code class="classname">Account</code>.</p></li><li><p> (TODO-05) Finally map the <code class="literal">savings</code>, and
+            <code class="literal">allocationPercentage</code> fields.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Note the beneficiary <code class="literal">savings</code> and
+              <code class="literal">allocationPercentage</code> fields are of the custom
+              types <code class="classname">MonetaryAmount</code> and
+              <code class="classname">Percentage</code> respectively. Out of the box,
+              JPA does not know how to map these custom types to database
+              columns. It is possible to define custom getters and setters
+              (used only by JPA) to do the conversion. However there is a
+              simpler way - using <code class="literal">@Embedded</code></p><p>Both <code class="classname">MonetaryAmount</code> and
+              <code class="classname">Percentage</code> have a single data-member
+              called value. This needs to be mapped to the correct column in
+              the Beneficiaries table. This involves using the
+              <code class="literal">@AttributeOverride</code> annotation. You must map
+              the field name <code class="literal">value</code> to the column for
+              <code class="literal">savings</code> and
+              <code class="literal">allocationPercentage</code> respectively.</p></td></tr></table></div></li></ol></div><p>When you have completed mapping the Account and Beneficiary
+        classes, move on to the next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3517"></a>3.1.2.&nbsp;Implement <code class="classname">JpaAccountRepository</code></h4></div></div></div><p>(TODO-06) You just defined the metadata JPA needs to map rows in the
+        account tables to an account object graph. Now you will implement the
+        data access logic to query Account objects.</p><p>Open <code class="classname">JpaAccountRepository</code> and implement
+        the <code class="methodname">findByCreditCard(String)</code> method.</p><p>You have to execute an JPQL statement to find the account
+        associated with the credit card. You achieve this by using the
+        transactional EntityManager that has already been defined for your.
+        Then, use the <code class="methodname">createQuery(String)</code> method to
+        execute an JPQL query that selects the <code class="literal">Account</code>
+        where the <code class="literal">creditCardNumber</code> field matches the input
+        parameter.</p><p>When you have completed the
+        <code class="methodname">findByCreditCard(String)</code> implementation, move
+        on to the next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3548"></a>3.1.3.&nbsp;Test <code class="classname">JpaAccountRepository</code></h4></div></div></div><p>To ensure that you implemented the
+        <code class="classname">JpaAccountRepository</code> properly you need to test
+        it. Run the <code class="classname">JpaAccountRepositoryTests</code> class in
+        the <code class="literal">src/test/java</code> source folder. When you get the
+        green bar, your repository works indicating your account
+        object-to-relational mappings are correct. Move on to the next
+        section!</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Have you noticed that
+          <code class="interfacename">AccountRepository</code> has changed from
+          previous labs? Specifically, the
+          <code class="methodname">updateBeneficiaries(Account)</code> method has
+          been removed because it is no longer needed with an ORM capable of
+          transparent persistence. Changes made to the
+          <code class="classname">Beneficiaries</code> of an account will
+          automatically be persisted to the database when the transaction is
+          committed. Explicit updates of persistent domain objects are no
+          longer necessary.</p></td></tr></table></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.jpa-restaraunt"></a>3.2.&nbsp;Using JPA in the Restaurant module</h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3579"></a>3.2.1.&nbsp;Configure the <code class="classname">Restaurant</code> mapping</h4></div></div></div><p>Recall the <code class="classname">Restaurant</code> entity represents a
+        merchant in the reward network that calculates how much benefit to
+        reward to an account for dining. In this step, you'll configure the
+        JPA mapping annotations that maps the Restaurant object graph to the
+        database.</p><div class="orderedlist"><ol type="1"><li><p>(TODO-07) Open the <code class="classname">Restaurant</code> in the
+            <code class="literal">rewards.internal.restaurant</code> package. We will
+            configure all object-to-relational mapping rules using annotations
+            inside this class.</p></li><li><p>Like the <code class="classname">Account</code> module, we need to
+            mark this class as an entity, define its table and define its
+            <code class="code">entityId</code> field as an auto-generated primary key.
+            Don't forget to use a <code class="classname">Column</code> annotation to
+            specify the target column in the database for this field.</p></li><li><p>Complete the mapping for the remaining Restaurant fields:
+            <code class="literal">number</code>, <code class="literal">name</code> and
+            <code class="literal">benefitPercentage</code>. Like the
+            <code class="classname">Beneficiary</code> mapping, the percentage is a
+            custom type and needs mapping differently. Use the schema in
+            Figure 1 to help you.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>You will need to use the <code class="literal">@Embedded</code> and
+              <code class="literal">@AttributeOverride</code> annotations again.</p><p>There is no need to map the
+              <code class="varname">benefitAvailabilityPolicy</code> - it has been done
+              for you.</p></td></tr></table></div></li></ol></div><p>When you have completed the Restaurant mapping, move on to the
+        next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3643"></a>3.2.2.&nbsp;Implement <code class="classname">JpaRestaurantRepository</code></h4></div></div></div><p>(TODO-08) You just defined the metadata JPA needs to map rows in the
+        <code class="literal">T_RESTAURANT</code> table to a Restaurant object graph.
+        Now you will implement the data access logic to query Restaurant
+        objects.</p><p>Open <code class="classname">JpaRestaurantRepository</code> and
+        implement the <code class="methodname">findByMerchantNumber(String)</code>
+        method. </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Use the <code class="methodname">createQuery(String)</code> method
+            to find the <code class="classname">Restaurant</code>.</p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3670"></a>3.2.3.&nbsp;Test <code class="classname">JpaRestaurantRepository</code></h4></div></div></div><p>Now run the <code class="classname">JpaRestaurantRepositoryTests</code>
+        class in the <code class="literal">src/test/java</code> source folder. When you
+        get the green bar your repository implementation works. Move on to the
+        next section!</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.jpa-configuration"></a>3.3.&nbsp;Integrating JPA into the Rewards Application</h3></div></div></div><p>Now that you have tested your JPA based repositories, you'll add
+      them to the overall application configuration. In this section you'll
+      update the application configuration as well as the system test
+      configuration. Then, you'll run your system test to verify the
+      application works!</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3688"></a>3.3.1.&nbsp;Define the JPA configuration for the application</h4></div></div></div><p>We need to setup our Spring configuration.</p><div class="orderedlist"><ol type="1"><li><p>(TODO-09) Open <code class="literal">RewardsConfig.java</code> in the
+            <code class="literal">config</code> package. In this file, define
+            beans for the <code class="classname">JpaAccountRepository</code> and the
+            <code class="classname">JpaRestaurantRepository</code>.  </p></li><li><p>In contrast to the previous JDBC based implementations,
+            these classes don't need any external dependencies. Spring
+            automatically recognizes the
+            <code class="classname">PersistenceContext</code> annotation inside
+            <code class="classname">JpaAccountRepository</code> &amp;
+            <code class="classname">JpaRestaurantRepository</code> - check
+            <code class="methodname">setPersistenceContext(EntityManager)</code> in
+            each class. </p></li><li><p>Now to setup the Entity Manager Factory. There are three
+            steps.</p><p>
+              </p><div class="orderedlist"><ol type="a"><li><p>(TODO-10) Open <code class="literal">SystemTestConfig.java</code> in the
+                  <code class="literal">src/test/java</code> source folder. In this file
+                  define a factory (as a Spring bean) to create the
+                  <code class="interfacename">EntityManagerFactory</code>. The
+                  factory bean's class is
+                  <code class="classname">LocalContainerEntityManagerFactoryBean</code>.  You
+                  can name the bean whatever you like, though <code class="literal">entityManagerFactory</code> is
+                  probably the most descriptive.
+                </p></li><li><p>Set the <code class="literal">dataSource</code> and
+                  <code class="literal">jpaVendorAdapter</code> properties
+                  appropriately. The <code class="literal">jpaVendorAdapter</code> tells
+                  Spring which JPA implementation will be used to create an
+                  <code class="interfacename">EntityManagerFactory</code>
+                  instance. Use the class
+                  <code class="classname">HibernateJpaVendorAdapter</code> to define
+                  the <code class="literal">jpaVendorAdapter</code>
+                  property.</p></li><li><p>You can set additional JPA implementation specific
+                  configuration properties by setting the
+                  <code class="literal">jpaProperties</code> property. During
+                  development it is very useful to have Hibernate output the
+                  SQL that it is passing to the database. The two properties
+                  to pass in are <code class="literal">hibernate.show_sql=true</code> to
+                  output the SQL and
+                  <code class="literal">hibernate.format_sql=true</code> to make it
+                  readable.  Note that in some cases a property may be available
+                  in the general <code class="literal">jpaProperties</code> AND in the
+                  specific <code class="classname">HibernateJpaVendorAdapter</code>.</p></li></ol></div><p>
+            </p></li><li><p>(TODO-11) Finally, define a
+            <code class="interfacename">transactionManager</code> bean so the
+            Reward Network can drive transactions using JPA APIs. Use the
+            <code class="classname">JpaTransactionManager</code> implementation. 
+            Note that this class requires an <code class="literal">entityManagerFactory</code>, 
+            so we will need to obtain one from the previously defined
+            bean.  Fortunately, Spring makes this very easy; simply define the bean
+            method with a parameter of type <code class="literal">EntityManagerFactory</code>.
+            When Spring calls this method at startup time, it will find a reference
+            by calling the <code class="literal">getObject()</code> method on the 
+            <code class="classname">LocalContainerEntityManagerFactoryBean</code> defined earlier.
+            By letting Spring handle this (instead of calling the method directly), 
+            you are allowing it to take care of any lifecycle requirements.</p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3809"></a>3.3.2.&nbsp;Run the application system test</h4></div></div></div><p>Interfaces define a contract for behavior and abstract away
+        implementation details. Plugging in JPA-based implementations of the
+        repository interfaces should not change the overall application
+        behavior. To verify this, find and run the
+        <code class="classname">RewardNetworkTests</code> class. Even though the
+        repositories underneath have changed to use JPA, this test should
+        still run.</p><p>If you get a green bar, the application is now running
+        successfully with JPA for object persistence!</p><p>Congratulations, you have completed the lab!</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3821"></a>3.4.&nbsp;BONUS CREDIT</h3></div></div></div><p>If you finish early, here are a couple of bonus tasks.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.type-safe"></a>3.4.1.&nbsp;Type-safe Query</h4></div></div></div><p>(TODO-12) Redo the query you wrote in
+        <code class="classname">JpaAccountRepository</code> to use the Criteria Query
+        API instead.</p><p>You will need to use the <code class="classname">Account</code>
+        meta-data class <code class="classname">Account_</code>. For convenience, it
+        has been provided for you in the same package as
+        <code class="classname">Account</code>. No extra build steps are required
+        (normally it would be auto-generated).</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.mapping-bap"></a>3.4.2.&nbsp;Mapping Benefit Availability Policy</h4></div></div></div><p>(TODO-13) There are two possible benefit availability policies - Always
+        and Never. Currently the policy for the
+        <code class="classname">Restaurant</code> is transient (so it is not mapped)
+        and hard-wired to <code class="literal">AlwaysAvailable.INSTANCE</code> - every
+        restaurant will always reward a diner. Suppose a restaurant leaves the
+        scheme, we need to stop rewards.</p><p>The policy is held as a code in the database: A for Always and N
+        for Never. The following shows you another way to map a column value
+        to a Java object. Instead of using <code class="literal">@Embedded</code> which
+        wouldn't work in this case, what we need to do is run some code when
+        the object is restored. The algorithm is:</p><p>
+          <code class="code">If the policy code in the database is "A", set the policy to AlwaysAvailable, else if it is "N" to NeverAvailable, else raise an exception for any other code.</code>
+        </p><p>To do this we use the JPA 2 <code class="literal">@Access</code>
+        annotation to define setters and getters that only the database will
+        use - this is termed Property access. It is a bit different to the
+        default Property access Hibernate has always used by default - that
+        used the <span class="emphasis"><em>same</em></span> getters and setters as everyone
+        else. Having custom getters and setters that only the database uses is
+        more flexible and avoids unintentional side-effects.</p><p>The accessors you need have already been written. All you have
+        to do is enable them. Go to the bottom of the
+        <code class="classname">Restaurant</code> class and uncomment the annotations
+        on the two protected methods defined there.</p><p>The <code class="literal">@Access</code> annotations tells JPA these are
+        for property access and the <code class="literal">@Column</code> indicates which
+        column we are mapping. JPA doesn't actually know what data-member we
+        are mapping that column to.</p><p>Rerun the <code class="classname">JpaRestaurantRepositoryTests</code>
+        and <code class="methodname">testNonParticipatingRestaurant</code> should now
+        fail. Fix the test to expect a <code class="classname">NeverAvailable</code>
+        policy and rerun it to see that our modification really works.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Mapping an object from a code like this is very useful and is
+          often used with Enumerated types. It replaces the use of Hibernate's
+          custom <code class="classname">UserType</code> mapping classes.</p></td></tr></table></div></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="tx-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="mvc-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Transaction Management with Spring&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Spring MVC Essentials</td></tr></table></div></body></html>

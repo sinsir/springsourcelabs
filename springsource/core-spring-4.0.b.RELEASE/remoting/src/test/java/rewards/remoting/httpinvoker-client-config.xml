@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+							http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- TODO-07: Define the 'rewardNetwork' bean as an HttpInvoker proxy.
+				  Set the serviceInterface and serviceUrl properties.
+				  The serviceUrl is a concatenation of the web application URL, the servlet URL, and the bean ID of the endpoint.
+				  Therefore, you should use http://localhost:8080/remoting/rewards/httpInvoker/rewardNetwork. -->
+
+</beans>

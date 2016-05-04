@@ -1,0 +1,100 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Introducing Aspect Oriented Programming</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="test-lab.html" title="Integration Testing with Profiles"><link rel="next" href="jdbc-lab.html" title="JDBC Simplification using the JdbcTemplate"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="aop-lab"></a>Introducing Aspect Oriented Programming</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="aop-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will gain experience with aspect oriented
+    programming (AOP) using the Spring AOP framework. You'll add cross-cutting
+    behavior to the rewards application and visualize it.</p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to write an aspect and weave it into your application</p></li></ol></div><p>Estimated time to complete: 35 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="aop-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="aop-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2416"></a>3.1.&nbsp;Creating and Testing a simple Aspect (<code class="literal">@Before</code> advice)</h3></div></div></div><p>Up until now you have used Spring to configure and test your
+      main-line application logic. Real-world enterprise applications also
+      demand supporting services that cut across your main-line logic. An
+      example would be logging: there may be many places in your application
+      where you need to log data for monitoring. Historically, this may have
+      lead to copying-and-pasting code, or entangling your application code
+      with infrastructure. Today, you turn to aspect oriented programming
+      (AOP). In the following steps you will create an aspect to monitor your
+      application's data access performance.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.create-aspect"></a>3.1.1.&nbsp;Create an aspect</h4></div></div></div><p>In this step you will create a simple logging aspect. First you
+        will define the logging behavior, then the rules about where the
+        behavior should be applied. You'll use the <code class="literal">@Aspect</code>
+        style.</p><p>(TODO-01) The definition of the aspect has already been started for you.
+        Find it in the <code class="literal">rewards.internal.aspects</code>
+        package.</p><p>Open the <code class="classname">LoggingAspect.java</code> file and
+        you'll see several TODOs for you to complete. First, complete the step
+        by annotating the <code class="classname">LoggingAspect</code> class with the
+        <code class="literal">@Aspect</code> annotation. That will indicate this class
+        is an aspect that contains cross-cutting behavior called "advice" that
+        should be woven into your application.</p><p>The @Aspect annotation marks the class as an aspect, but it is still not
+        a Spring bean.  Component scanning can be very effective for aspects, so mark this
+        class with the @Component annotation.  This object requires constructor injection,
+        so mark the constructor with an @Autowired annotation.  We will see where this
+        dependency comes from and turn on the actual component scanning in a later step.
+        </p><p> (TODO-02) We aren't interested in monitoring <span class="emphasis"><em>every</em></span>
+        method of your application, though, only a subset. At this stage,
+        you're only interested in monitoring the <code class="literal">find*</code>
+        methods in your repositories, the objects responsible for data access
+        in the application.</p><p>Therefore, define a pointcut expression that match all the
+        <code class="literal">find*</code> methods (such as<code class="literal"> findByCreditCard()</code>) in the
+        <code class="classname">AccountRepository</code>,
+        <code class="classname">RestaurantRepository</code>, or
+        <code class="classname">RewardRepository</code> interfaces. Use
+        <code class="literal">@Before</code> advice, and implement the
+        <code class="literal">implLogging()</code> method that takes a
+        <code class="literal">JoinPoint</code> object as a parameter, and logs
+        information about the target objects invoked during the application
+        execution.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.aspect-configure"></a>3.1.2.&nbsp;Configure Spring to weave the aspect into the application</h4></div></div></div><p>(TODO-03) Now that your aspect has been defined, you will create the
+        Spring configuration needed to weave it into your application.</p><p>inside <code class="filename">config/AspectsConfig.java</code>,
+        add an annotation to scan for components ONLY in the <code class="classname">rewards.internal.aspect</code>
+        package. This will cause your <code class="classname">LoggingAspect</code> to be detected
+        and deployed as a Spring bean. 
+        </p><p>
+        (TODO-04) Next, add the <code class="literal">@EnableAspectJAutoProxy</code> tag to this file. 
+        This instructs Spring to process beans that have the
+        <code class="literal">@Aspect</code> annotation by weaving them into the
+        application using the proxy pattern. This weaving behavior is shown
+        graphically below:</p><div class="mediaobject" align="center"><img src="images/aop-1/autoproxycreator.png" align="middle"><div class="caption"><p>Figure 1: Spring's auto proxy creator weaving an aspect into
+            the application using the proxy pattern</p></div></div><p>Figure 2 shows the internal structure of a created proxy and
+        what happens when it is invoked:</p><div class="mediaobject" align="center"><img src="images/aop-1/proxystructure.png" align="middle"><div class="caption"><p>Figure 2: A proxy that applies logging behaviour to a
+            <code class="classname">JdbcAccountRepository</code></p></div></div><p>When you have your aspect defined as a Spring bean along with
+        the autoproxy annotation, move on to the next step!</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.aspect-test"></a>3.1.3.&nbsp;Test the Aspect Implementation</h4></div></div></div><p>To see this aspect in action, plug it into the application's
+        system test configuration. To do that, simply adjust the @Import to include
+        <code class="filename">AspectsConfig.class</code> in the
+        <code class="filename">SystemTestConfig.java</code> configuration class (TODO-05).</p><p>After the configuration file has been added, run
+        <code class="classname">LoggingAspectTest</code> in STS and watch the
+        console.</p><pre class="programlisting">INFO : rewards.internal.aspects.LoggingAspect - 
+'Before' Advice implementation - class rewards.internal.account.JdbcAccountRepository; 
+Executing before findByCreditCard() method</pre><p>When you see the logging output, your aspect is being applied.
+        Move on to the next step!</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.perf-monitor-aspect"></a>3.2.&nbsp;Performance Monitor Aspect</h3></div></div></div><p>You will implement an <code class="classname">Around</code> Advice which
+      logs the time spent in each of your <code class="literal">update</code> repository
+      methods.</p><div class="itemizedlist"><ul type="disc"><li><p>Modify the <code class="classname">LoggingAspect</code> class, and
+          implement the <code class="literal">monitor(ProceedingJoinPoint)</code>
+          method. The method should start a monitor, proceed with the
+          repository invocation, stop the monitor after the invocation
+          returns, and log a report.</p></li><li><p>(TODO-06) Specify <code class="literal">@Around</code> advice for the monitor
+          method. Define a pointcut expression that matches all the
+          <code class="literal">update*</code> methods (such as
+          <code class="literal">JdbcAccountRepository.updateBeneficiaries(...)</code> on
+          the <code class="classname">AccountRepository</code>,
+          <code class="classname">RestaurantRepository</code>, or
+          <code class="classname">RewardRepository</code> interfaces.</p></li><li><p>(TODO-07) Now in <code class="literal">monitor(ProceedingJoinPoint)</code> method,
+          notice the Monitor start and stop logic has already been written for
+          you. What has not been written is the logic to proceed with the
+          target method invocation after the watch is started. Complete
+          this step by adding the <code class="literal">proceed</code> call. </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Remember, the call to
+              <code class="literal">repositoryMethod.proceed()</code> returns the target
+              method's return value. Make sure to return that value out,
+              otherwise you may change the value returned by a
+              repository!</p></td></tr></table></div></li><li><p>(TODO-08) Once you've added the proceed call, run the
+          <code class="classname">RewardNetworkTests</code> class in the test tree. If
+          you can see relevant logging information in the console, your
+          monitoring behavior has been implemented correctly.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="details.exception-aspect"></a>3.3.&nbsp;Exception Handling Aspect (Optional)</h3></div></div></div><p>Create an exception handling aspect as follows:</p><div class="itemizedlist"><ul type="disc"><li><p>(TODO-09) Modify the <code class="classname">DBExceptionHandlingAspect</code>
+          class by implementing the method
+          <code class="literal">implExceptionHandling(Exception e)</code> to report an
+          exception.</p></li><li><p>Specify <code class="literal">@AfterThrowing</code> advice on top of
+          this method. Define a pointcut expression that matches all the
+          methods in the three repositories (regardless of the method
+          names).</p></li><li><p>(TODO-10) Although this class is presently marked as an @Aspect,
+          it isn't defined as a @Component, and therefore it is not picked up when
+          component scanning.  Change this by simply adding a @Component anotation
+          to the top of the class.</p></li></ul></div></div><p>After the configuration has been added, run
+    <code class="classname">DBExceptionHandlingAspectTests</code> in Eclipse and watch the
+    console. If you can see relevant logging information in the console, your
+    exception handling behavior has been implemented correctly.</p><p>Congratulations, you've completed the lab!</p></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="test-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jdbc-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Integration Testing with Profiles&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;JDBC Simplification using the JdbcTemplate</td></tr></table></div></body></html>

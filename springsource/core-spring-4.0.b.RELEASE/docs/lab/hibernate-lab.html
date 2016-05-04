@@ -1,0 +1,160 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>ORM simplification using Spring</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="ws-lab.html" title="Exposing SOAP Endpoints using Spring WS"><link rel="next" href="spring-configuration.html" title="Appendix&nbsp;A.&nbsp;Spring XML Configuration Tips"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="hibernate-lab"></a>ORM simplification using Spring</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="hibernate-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>In this lab you will implement the repositories of the rewards
+    application with Hibernate. You'll configure Hibernate to map database
+    rows to objects, use native Hibernate APIs to query objects, and write
+    tests to verify mapping behavior. </p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to write Hibernate mapping information to map relational structures to domain objects</p></li><li><p>How to use Hibernate APIs to query objects</p></li><li><p>How to configure Hibernate in a Spring environment</p></li><li><p>How to test Hibernate-based repositories</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>Hibernate and JPA mapping Annotations</p></li><li><p><code class="interfacename">SessionFactory</code> and
+        <code class="interfacename">Session</code></p></li><li><p>
+          <code class="classname">AnnotationSessionFactoryBean</code>
+        </p></li></ol></div><p>Estimated time to complete: 45 minutes </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="hibernate-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>If you feel you have a good understanding of the material, you can
+    work with the TODOs listed in the <code class="literal">Tasks</code> view in
+    Eclipse/STS. To display them, click on Window -&gt; Show view -&gt; Tasks.
+    Alternatively, the next section contains more detailed step-by-step
+    instructions. Each task in STS is also described in more detail by a
+    corresponding section in the step-by-step instructions.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="hibernate-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><p>The instructions for this lab are organized into three sections.
+    The first two sections focus on using Hibernate within a <span class="emphasis"><em>domain module</em></span> of the application. The first addresses the
+    <code class="classname">Account</code> module, and the second addresses the
+    <code class="classname">Restaurant</code> module. In each of these sections,
+    you'll map that module's domain classes using Hibernate, implement a
+    Hibernate-based repository if needed, and unit test your repository to verify
+    Hibernate mapping behavior. In the third and final section, you'll
+    integrate Hibernate into the application configuration and run a top-down
+    system test to verify application behavior. </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6511"></a>3.1.&nbsp;Using Hibernate in the Account module</h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6514"></a>3.1.1.&nbsp;Create the <code class="classname">Account</code> mapping using Annotations</h4></div></div></div><p>Recall the <code class="classname">Account</code> entity represents a
+        member account in the reward network that can make contributions to
+        its beneficiaries. In this step, you'll finish the Hibernate mappings
+        that map the Account object graph to the database.</p><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>Inside the package
+            <code class="literal">rewards.internal.account</code>,
+            open the <code class="classname">Account</code> class. This file
+            needs more annotations to define how it is mapped to the
+            database.</p></li><li><p>Notice the mapping has already been started for you.
+            Specifically, the <code class="classname">Account</code> class has already
+            been mapped to the <code class="literal">T_ACCOUNT</code> table with the
+            <code class="literal">entityId</code> property mapped to the
+            <code class="literal">ID</code> primary key column. </p><p>Complete <code class="literal">TODO 1</code> by mapping the
+            remaining <code class="classname">Account</code> properties.
+            This includes the <code class="literal">number</code>,
+            <code class="literal">name</code>,
+            <code class="literal">beneficiaries</code> and
+            <code class="literal">creditCards</code>
+            properties. Use the <span class="underline">
+            [<a href="reference-domain.html#reward-dining-db-schema" title="4.&nbsp;Reward Dining Database Schema">reward dining database schema</a>]
+            </span>
+            to help you. 
+            </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>JPA knows how to map primitive types, Strings and BigDecimals.
+              But it still needs to know what columns they correspond to.</p></td></tr></table></div><p>
+            </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Since an <code class="classname">Account</code> can have many
+              beneficiaries, its <code class="literal">beneficiaries</code> property is a
+              collection. Map this property as a one-to-many relationship. The
+              foreign key column in the beneficiary table is
+              <code class="literal">ACCOUNT_ID</code>.
+              Same goes for the <code class="literal">creditCards</code> property. </p></td></tr></table></div><p>
+            </p></li><li><p>When you have finished mapping the
+            <code class="classname">Account</code> entity, complete the mapping of its
+            <code class="classname">Beneficiary</code> associate. Recall that an Account
+            distributes contributions to its beneficiaries based on an allocation
+            percentage.</p><p>Complete the <code class="classname">Beneficiary</code> mapping by
+            opening the <code class="classname">Beneficiary</code> class and adding
+            mappings for the <code class="literal">name</code>, <code class="literal">allocationPercentage</code> 
+            and <code class="literal">savings</code> properties (TODO 2).
+            </p></li><li><p>The <code class="classname">CreditCard</code> entity is very simple
+             and has been mapped for you. Take a quick look at the class to see
+             how it has been mapped.</p></li></ol></div><p>When you have completed mapping the <code class="classname">Account</code>, <code class="classname">Beneficiary</code>
+        classes, move on to the next step! </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6638"></a>3.1.2.&nbsp;Review <code class="classname">HibernateAccountRepository</code></h4></div></div></div><p>You just defined the metadata Hibernate needs to map rows in
+        the account tables to an account object graph. Now you will check
+        the data access logic to query Account objects. </p><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>Open <code class="classname">HibernateAccountRepository</code>.
+            The <code class="methodname">findByCreditCard(String)</code> method has
+            already been implemented. You should review this method before
+            moving to the next step. You will need to write a similar query
+            in a short while.</p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6657"></a>3.1.3.&nbsp;Test <code class="classname">HibernateAccountRepository</code></h4></div></div></div><p>It is now time to proof-test your Hibernate configuration.</p><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>In the
+            <code class="literal">src/test/java</code> source folder, run the
+            <code class="classname">rewards.internal.account.HibernateAccountRepositoryTests</code>
+            class . When you get the green
+            bar, your repository works indicating your account
+            object-to-relational mappings are correct. Move on to the next
+            section! </p></li><li><p>Review the methods in the 
+            <code class="interfacename">AccountRepository</code> interface.  It is
+            different.  If you aren't sure compare it to a previous lab.</p><p>What has changed?</p><p>Specifically, the
+            <code class="methodname">updateBeneficiaries(Account)</code> method has
+            been removed because it is simply no longer
+            needed with a ORM capable of transparent persistence. Changes made
+            to the <code class="classname">Beneficiaries</code> of an account will
+            automatically be persisted to the database when the transaction is
+            committed. Explicit updates of persistent domain objects are no
+            longer necessary, as long as those changes are made within the scope
+            of a Session. This is the power of an ORM over managing database
+            data manually.</p></li></ol></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6692"></a>3.2.&nbsp;Using Hibernate in the Restaurant module</h3></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6695"></a>3.2.1.&nbsp;Create the <code class="classname">Restaurant</code> mapping</h4></div></div></div><p>Recall the <code class="classname">Restaurant</code> entity represents
+        a merchant in the reward network that calculates how much benefit to
+        reward to an account for dining. In this step, you'll create the
+        Hibernate mapping file that maps the Restaurant object graph to the
+        database. </p><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>In the package
+            <code class="literal">rewards.internal.restaurant</code>, open the
+            <code class="classname">Restaurant</code> class. This is the
+            file that will define the <code class="classname">Restaurant</code>
+            object-to-relational mapping rules using annotations. </p><p>Finish mapping the Restaurant object (TODO 3). If you
+            are not sure what to do, refer back to the 
+            <code class="classname">Account</code> class. The mappings are similar</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Use the <a href="reference-domain.html#reward-dining-db-schema" title="4.&nbsp;Reward Dining Database Schema">reward dining database schema</a> to help you.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The <code class="literal">benefitAvailabilityPolicy</code> is
+              an enumeration.  However, JPA can translate column values to and from an
+              enumeration, provided the value in the database is a string.  Thus the
+              enumerated value <code class="literal">ALWAYS_AVAILABLE</code> is mapped to the string
+              <code class="literal">'ALWAYS_AVAILABLE'</code>.  An enum can then be mapped just like any other.</p><p>In practice, enumerated values are not usually
+              stored as strings.  It is possible to copy an enumerated data-member to a
+              encoded value in the database (typically a number or a code) but that is
+              outside the scope of this section.</p></td></tr></table></div></li></ol></div><p>When you have completed the Restaurant mapping, move on to the
+        next step! </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6748"></a>3.2.2.&nbsp;Implement <code class="classname">HibernateRestaurantRepository</code></h4></div></div></div><p>You just defined the metadata Hibernate needs to map rows in
+        the T_RESTAURANT table to a <code class="classname">Restaurant</code> object graph. Now you will
+        implement the data access logic to query Restaurant objects. </p><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>Open <code class="classname">HibernateRestaurantRepository</code>.</p></li><li><p>Complete TODO 4 by implementing the
+              <code class="methodname">findByMerchantNumber(String)</code> method. 
+              </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Use the <code class="methodname">createQuery(String)</code> method
+                to find the <code class="classname">Restaurant</code>. </p></td></tr></table></div><p>
+            </p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6783"></a>3.2.3.&nbsp;Test <code class="classname">HibernateRestaurantRepository</code></h4></div></div></div><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>In the
+            <code class="literal">src/test/java</code> source folder, run the
+            <code class="classname">HibernateRestaurantRepositoryTests</code>
+            class. When you get the green bar your repository implementation
+            works. Move on to the next section!
+            </p></li></ol></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6800"></a>3.3.&nbsp;Integrating Hibernate into the Rewards Application</h3></div></div></div><p>Now that you have tested your Hibernate based repositories,
+      you'll add them to the overall application configuration. In this
+      section you'll update the application configuration as well as the
+      system test configuration. Then, you'll run your system test to verify
+      the application works! </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6805"></a>3.3.1.&nbsp;Define the Hibernate configuration for the application</h4></div></div></div><div class="orderedlist"><p class="title"><b>Tasks</b></p><ol type="1"><li><p>In the <code class="literal">rewards.internal</code> package, open
+              <code class="literal">application-config.xml</code>. 
+              In this file, define beans for the <code class="classname">HibernateAccountRepository</code> and
+              the <code class="classname">HibernateRestaurantRepository</code> (TODO 5).
+              Remember that each of the repositories needs a
+              <code class="interfacename">SessionFactory</code> injected. The session
+              factory will be defined as part of your test infrastructure.</p></li><li><p>Next, in the
+            <code class="literal">src/test/java</code> source folder, open <code class="literal">rewards/system-test-config.xml</code>. You will define there 2 beans of type <code class="interfacename">SessionFactory</code> and <code class="classname">HibernateTransactionManager</code> (TODO 6).
+            </p><p>
+            Firstly, define a factory to create the <code class="interfacename">SessionFactory</code>
+            you referenced earlier. The factory bean's class is
+            <code class="classname">AnnotationSessionFactoryBean</code>. Set the
+            <code class="literal">dataSource</code> and <code class="literal">annotatedClasses</code>
+            properties appropriately. </p></li><li><p>You can set additional Hibernate configuration properties by
+            setting the <code class="literal">hibernateProperties</code> property. For
+            example, you could pass in
+            <code class="literal">hibernate.show_sql=true</code> to output the SQL
+            statements that Hibernate is passing to the database and 
+            <code class="literal">hibernate.format_sql=true</code> to format the SQL statements.</p></li><li><p>Finally, define a
+            <code class="interfacename">transactionManager</code> bean so the Reward
+            Network can drive transactions using Hibernate APIs. Use the
+            <code class="classname">HibernateTransactionManager</code> implementation. Set
+            its <code class="literal">sessionFactory</code> property appropriately. </p></li><li><p>Now go to the Spring Explorer view in Eclipse and show the graph
+            of the <code class="literal">hibernate -&gt; system-test-config.xml</code>. If
+            you configured your application context properly the graph should look
+            something like <a href="hibernate-lab.html#context-configuration-hib" title="Figure&nbsp;16.&nbsp;Spring Bean Configuration">Figure&nbsp;16</a>:</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="context-configuration-hib"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/hibernate-1/context-configuration.png" align="middle" alt="Spring Bean Configuration"></div></div><p class="title"><b>Figure&nbsp;16.&nbsp;Spring Bean Configuration</b></p></div><br xmlns="" class="figure-break"></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>It sometimes happen that the graph does not refresh properly.
+              If that is the case, you just need to follow those steps:
+
+              </p><div class="orderedlist"><ol type="a"><li><p>In the Spring explorer view, right click on the
+                  <code class="literal">hibernate</code> 
+                  project and select <code class="literal">Properties</code></p></li><li><p>Go into the <code class="literal">Beans Support</code> section,
+                  uncheck <code class="literal">Enable support for import elements in configuration files</code> and click on OK</p></li><li><p>
+                  Go back to the <code class="literal">Beans Support</code> section and
+                  check <code class="literal">Enable support for import elements in configuration files</code> again
+                  </p></li></ol></div><p>          
+              </p></td></tr></table></div></li></ol></div><p>If your graph looks correct, you've completed this step. Move
+        on to the next step! </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6929"></a>3.3.2.&nbsp;Run the application system test</h4></div></div></div><p>Interfaces define a contract for behavior and abstract away
+        implementation details. Plugging in Hibernate-based implementations of
+        the repository interfaces should not change the overall application
+        behavior. So our integration tests should still work.</p><p>To verify this, find and run the
+            <code class="classname">RewardNetworkTests</code> class. If you get a green
+            bar, the application is now running successfully with Hibernate for
+            object persistence! </p><p>Congratulations, you have completed the lab! </p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ws-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="spring-configuration.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Exposing SOAP Endpoints using Spring WS&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Appendix&nbsp;A.&nbsp;Spring XML Configuration Tips</td></tr></table></div></body></html>

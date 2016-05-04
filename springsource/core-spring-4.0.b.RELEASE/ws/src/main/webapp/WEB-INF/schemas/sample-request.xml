@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rewardAccountForDiningRequest
+	xmlns="http://www.springsource.com/reward-network" 
+	
+	>
+<!--	TODO 01: Complete this sample message by adding ATTRIBUTES (not elements)
+		for amount, creditCardNumber, and merchantNumber.  Provide useful, representative
+		values for these attributes such as 100.00 for the amount. -->	
+<!--	TODO 02: Run the "ws-1 Trang.launch" file to generate the schema (right click on file, "Run As/1 ws-1 Trang".
+		Trang will create src/main/webapp/WEB-INF/schemas/trang-schema.xsd.  
+		Refresh the project to see this file.
+		Inspect the file, Trang should have generated amount as xs:decimal and the others as xs:string.
+		Manually modify the schema as needed. -->
+ </rewardAccountForDiningRequest>

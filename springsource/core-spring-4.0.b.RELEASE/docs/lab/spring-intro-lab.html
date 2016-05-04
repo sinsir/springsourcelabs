@@ -1,0 +1,153 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Introduction to Core Spring</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="reference-domain.html" title="Reward Dining: The Course Reference Domain"><link rel="next" href="JavaConfig-dependency-injection.html" title="Dependency Injection with JavaConfig"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="spring-intro-lab"></a>Introduction to Core Spring</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-intro-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>Welcome to <span class="emphasis"><em>Core Spring</em></span>! In this lab you'll come
+    to understand the basic workings of the <span class="emphasis"><em>Reward
+    Network</em></span> reference application and you'll be introduced to the
+    tools you'll use throughout the course.</p><p>Once you will have familarized yourself with the tools and the
+    application domain, you will implement and test the <a href="reference-domain.html" title="Reward Dining: The Course Reference Domain">rewards application</a> using Plain Old Java
+    objects (POJOs).</p><p>At the end of the lab you will see that the application logic will
+    be clean and not coupled with infrastructure APIs. You'll understand that
+    you can develop and unit test your business logic without using Spring.
+    Furthermore, what you develop in this lab will be directly runnable in a
+    Spring environment without change.</p><p>Have fun with the steps below, and remember the goal is to get
+    comfortable with the tools and application concepts. <span class="emphasis"><em>If you get
+    stuck, don't hesitate to ask for help!</em></span></p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p><span class="emphasis"><em>In every lab, read to the end of each numbered section
+      before doing anything. There are often tips and notes to help you, but
+      they may be just over the next page or off the bottom of the screen.
+      </em></span></p></td></tr></table></div><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>Basic features of the Spring Tool Suite</p></li><li><p>Core <span class="emphasis"><em>RewardNetwork</em></span> Domain and API</p></li><li><p>Basic interaction of the key components within the domain</p></li></ol></div><p>Estimated time to complete: 30 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-intro-1-lab-instructions"></a>2.&nbsp;Instructions</h2></div></div></div><p>Before beginning this lab, read about the <a href="reference-domain.html" title="Reward Dining: The Course Reference Domain">course reference domain</a> to gain
+    background on the rewards application.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e249"></a>2.1.&nbsp;Getting Started with the Spring Tool Suite</h3></div></div></div><p>The Spring Tool Suite (STS) is a free IDE built on the
+      Eclipse Platform. In this section, you will become familiar with the
+      Tool Suite. You will also understand how the lab projects have been
+      structured.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e254"></a>2.1.1.&nbsp;Launch the Tool Suite</h4></div></div></div><p>Launch the Spring Tool Suite by using the shortcut link on
+        your desktop.</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="sts-desktop-icon-si-1"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/STS-Thumb.png" align="middle" alt="STS Desktop Icon"></div></div><p class="title"><b>Figure&nbsp;1.&nbsp;STS Desktop Icon</b></p></div><br xmlns="" class="figure-break"></div><p>After double-clicking the shortcut, you will see the STS splash
+        image appear.</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e267"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/SpringSplash.png" align="middle" alt="STS Splash Image"></div></div><p class="title"><b>Figure&nbsp;2.&nbsp;STS Splash Image</b></p></div><br xmlns="" class="figure-break"></div><p>You will be asked to select a workspace. You should accept the
+        default location offered. You can optionally check the box labeled
+        <span class="emphasis"><em>use this as the default and do not ask
+        again.</em></span></p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e277"></a>2.1.2.&nbsp;Understanding the Eclipse/STS project structure</h4></div></div></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>If you've just opened STS, it may be still starting up. Wait
+          several moments until the progress indicator on the bottom right
+          finishes. When complete, you should have no red error markers within
+          the <span class="emphasis"><em>Package Explorer</em></span> or
+          <span class="emphasis"><em>Problems</em></span> views</p></td></tr></table></div><p>Now that STS is up and running, you'll notice that, within the
+        <span class="emphasis"><em>Package Explorer</em></span> view on the left, projects are
+        organized by <span class="emphasis"><em>Working Sets</em></span>. Working Sets are
+        essentially folders that contain a group of Eclipse projects. These
+        working sets represent the various labs you will work through during
+        this course. Notice that they all begin with a number so that the labs
+        are organized in order as they occur in this lab guide.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e297"></a>2.1.3.&nbsp;Browse Working Sets and projects</h4></div></div></div><p>If it is not already open, expand the
+        <span class="emphasis"><em>01-spring-intro</em></span> Working Set. Within you'll find
+        two projects: <span class="emphasis"><em>spring-intro</em></span> and
+        <span class="emphasis"><em>spring-intro-solution</em></span>.
+        <span class="emphasis"><em>spring-intro</em></span> corresponds to the start project.
+        This pair of <span class="emphasis"><em>start</em></span> and
+        <span class="emphasis"><em>solution</em></span> projects is a common pattern throughout
+        the labs in this course.</p><p>Open the <span class="emphasis"><em>spring-intro</em></span> project and expand
+        its <span class="emphasis"><em>Referenced Libraries</em></span> node. Here you'll see a
+        number of dependencies similar to the screenshot below:</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e328"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/Dependencies.png" align="middle" alt="Referenced Libraries"></div></div><p class="title"><b>Figure&nbsp;3.&nbsp;Referenced Libraries</b></p></div><br xmlns="" class="figure-break"></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>This screenshot uses the "Hierarchical" Package Presentation
+          view instead of the "Flat" view (the default). See the <a href="eclipse.html#package-explorer-tip" title="B.2.&nbsp;Package Explorer View">Eclipse</a> tips section on how to
+          toggle between the two views.</p></td></tr></table></div><p>For the most part, these dependencies are straightforward and
+        probably similar to what you're used to in your own projects. For
+        example, there are several dependencies on Spring Framework jars, on
+        Hibernate, DOM4J, etc.</p><p>In addition to having dependencies on a number of libraries, all
+        lab projects also have a dependency on a common project called
+        <span class="emphasis"><em>rewards-common</em></span>.</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e347"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/RewardsProject.png" align="middle" alt="rewards-common common components"></div></div><p class="title"><b>Figure&nbsp;4.&nbsp;<span class="emphasis"><em>rewards</em></span>-common common components</b></p></div><br xmlns="" class="figure-break"></div><p>This project is specific to Spring training courseware, and
+        contains a number of types such as
+        <span class="emphasis"><em>MonetaryAmount</em></span>, <span class="emphasis"><em>SimpleDate</em></span>,
+        etc. You'll make use of these types throughout the course. Take a
+        moment now to explore the contents of that jar and notice that if you
+        double-click on the classes, the sources are available for you to
+        browse.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e363"></a>2.1.4.&nbsp;Configure the TODOs in STS</h4></div></div></div><p>In the next labs, you will often be asked to work with TODO
+        instructions. They are displayed in the <code class="literal">Tasks</code> view
+        in Eclipse/STS. If not already displayed, click on
+        <code class="literal">Window -&gt; Show View -&gt; Tasks</code>
+        (be careful, <span class="emphasis"><em>not <code class="literal">Task List</code></em></span>).
+        If you can't see the <code class="literal">Tasks</code> view, try clicking
+        <code class="literal">Other ...</code> and looking under <code class="literal">General</code>.</p><p>By default, you see the TODOs for all the active projects in
+        Eclipse/STS. To limit the TODOs for a specific project, execute the
+        steps summarized in the following screenshots:</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="task1"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/Task1.png" align="middle" alt="Configure TODOs"></div></div><p class="title"><b>Figure&nbsp;5.&nbsp;Configure TODOs</b></p></div><br xmlns="" class="figure-break"></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="task2"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/Task2.png" align="middle" alt="Configure TODOs"></div></div><p class="title"><b>Figure&nbsp;6.&nbsp;Configure TODOs</b></p></div><br xmlns="" class="figure-break"></div><p><span class="bold"><strong>Caution: </strong></span>It is possible, you
+        might not be able to see the TODOs defined within the XML files. In
+        this case, you can check the configuration in <code class="literal">Preferences -&gt;
+        General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+        pane.  Make sure <code class="literal">Enable searching for Task Tags</code> is selected.
+        On the <code class="literal">Filters</code> tab, verify if XML content type is
+        selected. In case of refresh issues, you may have to uncheck it and
+        then check it again.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e415"></a>2.2.&nbsp;Understanding the 'Reward Network' Application Domain and
+      API</h3></div></div></div><p>Before you begin to use Spring to configure an application, the
+      pieces of the application must be understood. If you haven't already
+      done so, take a moment to review <span class="emphasis"><em>Reward Dining: The Course
+      Reference Domain</em></span> in the preface to this lab guide. This
+      overview will guide you through understanding the background of the
+      Reward Network application domain and thus provide context for the rest
+      of the course.</p><p>The rewards application consists of several pieces that work
+      together to reward accounts for dining at restaurants. In this lab, most
+      of these pieces have been implemented for you. However, the central
+      piece, the <code class="interfacename">RewardNetwork</code>, has not.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e428"></a>2.2.1.&nbsp;Review the <code class="interfacename">RewardNetwork</code>
+        implementation class</h4></div></div></div><p>The <code class="interfacename">RewardNetwork</code> is responsible
+        for carrying out <code class="methodname">rewardAccountFor(Dining)</code>
+        operations. In this step you'll be working in a class that implements
+        this interface. See the implementation class below:</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e442"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/rewardnetwork-classdiagram-basic.png" align="middle" alt="RewardNetworkImpl implements the RewardNetwork interface"></div></div><p class="title"><b>Figure&nbsp;7.&nbsp;<code class="classname">RewardNetworkImpl</code> implements the
+          <code class="interfacename">RewardNetwork</code> interface</b></p></div><br xmlns="" class="figure-break"></div><p>Take a look at your <code class="literal">spring-intro</code> project in
+        STS. Navigate into the <code class="filename">src/main/java</code> source
+        folder and you'll see the root <code class="filename">rewards</code> package.
+        Within that package you'll find the
+        <code class="interfacename">RewardNetwork</code> Java interface
+        definition:</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e467"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/rewards-package.png" align="middle" alt="The rewards package"></div></div><p class="title"><b>Figure&nbsp;8.&nbsp;The <code class="filename">rewards</code> package</b></p></div><br xmlns="" class="figure-break"></div><p>The classes inside the root <code class="filename">rewards</code> package
+        fully define the public interface for the application, with
+        <code class="interfacename">RewardNetwork</code> being the central
+        element. Open <code class="interfacename">RewardNetwork.java</code> and
+        review it.</p><p>Now expand the <code class="filename">rewards.internal</code> package and
+        open the implementation class
+        <code class="classname">RewardNetworkImpl.java</code>.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e495"></a>2.2.2.&nbsp;Review the <code class="classname">RewardNetworkImpl</code>
+        configuration logic</h4></div></div></div><p><code class="classname">RewardNetworkImpl</code> should rely on three
+        supporting data access services called 'Repositories' to do its job.
+        These include: </p><div class="orderedlist"><ol type="1"><li><p>An <code class="interfacename">AccountRepository</code> to
+              load <code class="classname">Account</code> objects to make benefit
+              contributions to.</p></li><li><p>A <code class="interfacename">RestaurantRepository</code> to
+              load <code class="classname">Restaurant</code> objects to calculate how
+              much benefit to reward an account for dining.</p></li><li><p>A <code class="interfacename">RewardRepository</code> to track
+              confirmed reward transactions for accounting and reporting
+              purposes.</p></li></ol></div><p>This relationship is shown graphically below:</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e532"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/rewardnetworkimpl-classdiagram.png" align="middle" alt="RewardNetworkImpl class diagram"></div></div><p class="title"><b>Figure&nbsp;9.&nbsp;<code class="classname">RewardNetworkImpl</code> class
+          diagram</b></p></div><br xmlns="" class="figure-break"></div><p>Locate the single constructor and notice all three dependencies
+        are injected when the <code class="classname">RewardNetworkImpl</code> is
+        constructed.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e545"></a>2.2.3.&nbsp;Implement the <code class="classname">RewardNetworkImpl</code>
+        application logic</h4></div></div></div><p>In this step you'll implement the application logic necessary to
+        complete a <code class="methodname">rewardAccountFor(Dining)</code>
+        operation, delegating to your dependents as you go.</p><p>Start by reviewing your existing RewardNetworkImpl
+        <code class="methodname">rewardAccountFor(Dining)</code> implementation. As
+        you will see, it doesn't do anything at the moment.</p><p>Inside the task view in Eclipse/STS, complete all the TODOs.
+        Implement them as shown in <a href="spring-intro-lab.html#rewardAccountForDining-sequence-si" title="Figure&nbsp;10.&nbsp;The&#xA;          RewardNetworkImplrewardAccountFor(Dining)&#xA;          sequence">Figure&nbsp;10</a></p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="rewardAccountForDining-sequence-si"></a><div class="figure-contents"><div class="mediaobject" align="center"><table border="0" summary="manufactured viewport for HTML img" cellspacing="0" cellpadding="0" width="120%"><tr><td align="center"><img src="images/spring-intro-1/rewardAccountForDining-sequence-horizontal.png" align="middle" width="100%" alt="The RewardNetworkImplrewardAccountFor(Dining) sequence"></td></tr></table></div></div><p class="title"><b>Figure&nbsp;10.&nbsp;The
+          <code class="classname">RewardNetworkImpl</code><code class="methodname">rewardAccountFor(Dining)</code>
+          sequence</b></p></div><br xmlns="" class="figure-break"></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Use Eclipse's <a href="eclipse.html#field-autocomplete-tip" title="B.4.&nbsp;Field Auto-Completion">autocomplete</a> to help you as
+          you define each method call and variable assignment.</p></td></tr></table></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>You should not need to use operator <code class="literal">new</code> in
+          your code. Everything you need is returned by the methods you use.
+          The interaction diagram doesn't show what each call returns, but
+          most of them return something</p></td></tr></table></div><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>You get the credit card and merchant numbers from the
+          <code class="classname">Dining</code> object.</p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e595"></a>2.2.4.&nbsp;Unit test the <code class="classname">RewardNetworkImpl</code>
+        application logic</h4></div></div></div><p>How do you know the application logic you just wrote actually
+        works? You don't, not without a test that proves it. In this step
+        you'll review and run an automated JUnit test to verify what you just
+        coded is correct.</p><p>Navigate into the <code class="filename">src/test/java</code> source
+        folder and you'll see the root <code class="filename">rewards</code> package.
+        All tests for the rewards application reside within this tree at the
+        same level as the source they exercise. Drill down into the
+        <code class="filename">rewards.internal</code> package and you'll see
+        <code class="classname">RewardNetworkImplTests</code>, the JUnit test for your
+        <code class="classname">RewardNetworkImpl</code> class.</p><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="text-align: center"><div xmlns="" class="figure"><a name="d0e620"></a><div class="figure-contents"><div class="mediaobject" align="center"><img src="images/spring-intro-1/test-tree.png" align="middle" alt="The rewards test tree"></div></div><p class="title"><b>Figure&nbsp;11.&nbsp;The <code class="filename">rewards</code> test tree</b></p></div><br xmlns="" class="figure-break"></div><p>Inside <code class="classname">RewardNetworkImplTests</code> you can
+        notice that the setUp() method, 'stub' repositories have been created
+        and injected into the <code class="classname">RewardNetworkImpl</code> class
+        using the constructor.</p><p>Review the only test method in the class. It calls
+        <code class="methodname">rewardNetwork.rewardAccountFor(Dining)</code> and
+        then makes assert statements to evaluate the result of calling this
+        method. In this way the unit test is able to construct an instance of
+        RewardNetworkImpl using the mock objects as dependencies and verify
+        that the logic you implemented functions as expected.</p><p>Once you reviewed the test logic, run the test. To run,
+        right-click on <code class="classname">RewardNetworkImplTests</code> and
+        select <span class="emphasis"><em>Run As -&gt; JUnit Test</em></span>.</p><p>When you have the green bar, congratulations! You've completed
+        this lab. You have just developed and unit tested a component of a
+        realistic Java application, exercising application behavior
+        successfully in a test environment inside your IDE. You used stubs to
+        test your application logic in isolation, without involving external
+        dependencies such as a database or Spring. And your application logic
+        is clean and decoupled from infrastructure APIs.</p><p>In the next lab, you'll use Spring to configure this same
+        application from all the <span class="emphasis"><em>real</em></span> parts, including
+        plugging in <span class="emphasis"><em>real</em></span> repository implementations that
+        access a relational database.</p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="reference-domain.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="JavaConfig-dependency-injection.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Reward Dining: The Course Reference Domain&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Dependency Injection with JavaConfig</td></tr></table></div></body></html>

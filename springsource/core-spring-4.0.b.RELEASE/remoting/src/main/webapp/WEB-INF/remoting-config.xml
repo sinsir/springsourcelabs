@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Configuration for the reward network remoting dispatcher servlet -->
+
+	<!-- TODO-06: Add HttpInvoker endpoint for the RewardNetwork.
+		 The bean id should be '/httpInvoker/rewardNetwork'.
+		 Provide the 'service' and 'serviceInterface' properties.  
+		 When complete, deploy this web application to the server and start it. -->
+		 
+		 	
+</beans>

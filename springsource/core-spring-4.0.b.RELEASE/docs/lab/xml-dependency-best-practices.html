@@ -1,0 +1,119 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Dependency Injection Best Practices</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="xml-di.html" title="XML Dependency Injection"><link rel="next" href="test-lab.html" title="Integration Testing with Profiles"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="xml-dependency-best-practices"></a>Dependency Injection Best Practices</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="xml-dependency-best-practices-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>Techniques for reducing the amount of Spring configuration
+        code</p></li><li><p>How to import XML namespaces</p></li><li><p>How to apply custom configuration behaviors to objects created
+        by Spring</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>Bean Definition Inheritance</p></li><li><p>Importing Configuration Files</p></li></ol></div><p>Estimated time to complete: 30 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="xml-dependency-best-practices-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Occasionally, TODO'S defined within XML files may fail to appear in 
+    the <code class="literal">Tasks</code> view (i.e. gaps in the number sequence).  To correct this, 
+    go to <code class="literal">Preferences -&gt; General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+    pane.  Check <code class="literal">Enable searching for Task Tags</code> and click <code class="literal">Clean and Redetect Tasks</code>.
+    On the <code class="literal">Filters</code> tab, ensure XML content type is checked.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="xml-dependency-best-practices-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1829"></a>3.1.&nbsp;(TODO 01) Using bean definition inheritance to reduce the amount of
+      configuration</h3></div></div></div><p>Spring provides several features that help you reduce the amount
+      of application configuration code. In this section you'll gain
+      experience with one of them called <span class="emphasis"><em>bean definition
+      inheritance</em></span>.</p><p>Inside the <code class="literal">rewards</code> package, open the test class called <code class="literal">RewardsNetworkTests</code>.
+	  As you can see, the instruction <code class="literal">new ClassPathXmlApplicationContext("")</code> currently does not have any argument.
+	  You can add 2 files: <code class="literal">test-infrastructure-config.xml</code> and <code class="literal">application-config.xml</code>. 
+	  Keep in mind that you should include the file paths starting from inside the classpath root folders 
+	  (<code class="literal">src/test/java</code> and <code class="literal">src/main/java</code>).
+	  When done, run <code class="literal">RewardsNetworkTests</code> to make sure the file paths are correct.
+	  </p><p>Bean definition inheritance is useful when you have several beans
+      that should be configured the same way. It lets you define the shared
+      configuration once, then have each bean inherits from it.</p><p>In the <code class="literal">rewards</code> application, there is a case where bean definition
+      inheritance makes sense. Recall there are three JDBC-based repositories,
+      and each repository needs the same <code class="literal">dataSource</code>. In
+      this section, you'll use bean definition inheritance to reduce the
+      amount of repository configuration code.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1873"></a>3.1.1.&nbsp;(TODO 02) Define the <code class="literal">abstractJdbcRepository</code>
+        bean</h4></div></div></div><p>In this step, you'll define an abstract bean that centralizes
+        the configuration of the <code class="literal">dataSource</code> needed by each
+        JDBC-based repository.</p><p>Inside <code class="filename">src/main/java</code> within the
+        <code class="literal">rewards.internal</code> package open
+        <code class="filename">application-config.xml</code>. Note how the
+        <code class="literal">property</code> tag instructing Spring to set the
+        <code class="literal">dataSource</code> is currently duplicated for each
+        repository.</p><p>Now in <code class="filename">application-config.xml</code>, create an
+        abstract bean named <code class="literal">abstractJdbcRepository</code> that
+        centralizes the <code class="literal">dataSource</code> configuration.
+        </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1912"></a>3.1.2.&nbsp;Update each repository bean definition</h4></div></div></div><p>In <code class="filename">application-config.xml</code>, update each
+        repository bean so it extends from your
+        <code class="literal">abstractJdbcRepository</code> bean definition, then clean up the bean
+        definition to remove the duplication (TODO 02).</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top">You can now in-line the bean tag defining each repository to save
+        a line of code.</td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1925"></a>3.1.3.&nbsp;Re-run the <code class="classname">RewardNetwork</code> system
+        test</h4></div></div></div><p>In this last step you will re-run your
+        <code class="classname">RewardNetworkTests</code> to verify your configuration
+        changes don't break your application.</p><p>Run <code class="filename">RewardNetworkTests</code> located within the
+        <code class="literal">rewards</code> package of your test tree. When you see
+        green, you have just verified your application still works with your
+        changes and you've completed this section.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1944"></a>3.2.&nbsp;(TODO 03) Externalizing values to a Properties file</h3></div></div></div><p>In this section, you'll gain experience with using the
+      <code class="literal">&lt;context:property-placeholder&gt;</code>, element.
+      Specifically, you will move the configuration of your
+      <code class="literal">embedded-database</code> from
+      <code class="filename">test-infrastructure-config.xml</code> into a
+      <code class="literal">.properties</code> file, then declare a
+      <code class="literal">&lt;context:property-placeholder&gt;</code> element to apply
+      the configuration. By doing this, you'll make it easier for
+      administrators to safely change your configuration.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1964"></a>3.2.1.&nbsp;Create the <code class="literal">.properties</code> file</h4></div></div></div><p>In this step you'll create a properties file that externalizes
+        the configuration of your <code class="literal">dataSource</code> factory
+        bean.</p><p>Within the <code class="literal">rewards</code> package inside
+        <code class="filename">src/test/java</code> create a file named
+        <code class="filename">testdb.properties</code> . Add the following
+        properties:</p><pre class="programlisting">schemaLocation=classpath:rewards/testdb/schema.sql
+testDataLocation=classpath:rewards/testdb/test-data.sql</pre><p>Notice how these values match the current script values of the
+        embedded <code class="literal">dataSource</code> in
+        <code class="filename">test-infrastructure-config.xml</code>. 
+        </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1996"></a>3.2.2.&nbsp;Replace static property values with ${placeholders}</h4></div></div></div><p>In this step you will replace the static property values in your
+        <code class="filename">test-infrastructure-config.xml</code> with
+        placeholders.</p><p>In <code class="filename">test-infrastructure-config.xml</code>, replace
+        each property value configured for your
+        <code class="literal">embedded-database</code> with a placeholder. The
+        placeholder name should match the respective property name in your
+        properties file.</p><p>Once you have done this, run your
+        <code class="classname">RewardNetworkTests</code> to see if anything broke.
+        You should see the red bar indicating the placeholders are not yet
+        being replaced with valid values. One more step left to
+        complete...</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2017"></a>3.2.3.&nbsp;Declare a
+        <code class="literal">&lt;context:property-placeholder&gt;</code>
+        element</h4></div></div></div><p>In this step you will declare a
+        <code class="literal">&lt;context:property-placeholder&gt;</code> element that
+        will replace each placeholder with a value from your properties
+        file.</p><p>In <code class="filename">test-infrastructure-config.xml</code>, declare
+        an instance of the
+        <code class="literal">&lt;context:property-placeholder&gt;</code> element. Set
+        its <code class="literal">location</code> attribute to point to your properties
+        file. Remember that this configuration will be automatically detected
+        by Spring and called before any other bean is created. No other
+        configuration is necessary.</p><p>Now re-run your <code class="classname">RewardNetworkTests</code>. You
+        should see the green bar indicating your placeholders are being
+        replaced with valid values. </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Even if you get green on your first attempt, try
+            experimenting with some failure scenarios. For example, try
+            misspelling a placeholder, property name, or property value and
+            see what happens.</p></td></tr></table></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2047"></a>3.3.&nbsp;(TODO 04) Using the <code class="literal">&lt;import/&gt;</code> tag to combine
+      configuration fragments</h3></div></div></div><p>Using the <code class="literal">&lt;import/&gt;</code> tag is often a good
+      idea when working with multiple configuration files. In this section you
+      will refactor your configurations to use this tag and see the strengths
+      of this technique.</p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2058"></a>3.3.1.&nbsp;Refactor the system test configuration</h4></div></div></div><p>Open <code class="classname">RewardNetworkTests</code>. Note how all the
+        configuration files required to run the system test are listed in this
+        file. Now suppose you added another configuration file. You would have
+        to update your test code to accommodate this change. Now consider a
+        production web environment. In that environment you'd also have to
+        update your <code class="filename">web.xml</code> file any time the structure
+        of your application configuration changed.</p><p>The import tag allows you to create a single 'master'
+        configuration file for each environment that imports everything else.
+        This technique can simplify the code needed to bootstrap your
+        application and better insulate you from changes in your application
+        configuration structure.</p><p>In this step you will refactor your system test to include a
+        single 'master' configuration file that imports everything
+        else.</p><p>Now use the <code class="literal">&lt;import/&gt;</code> tag to import the
+        application configuration. Re-run
+        <code class="classname">RewardNetworkTests</code> to verify your configuration
+        changes don't break your application. When you see green, you have
+        verified your application works with your improved configuration
+        design. Good Job!
+        
+        </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>You might consider renaming the
+        <code class="filename">test-infrastructure-config.xml</code> file to
+        <code class="filename">system-test-config.xml</code>.  Such naming indicates that
+        this file fully defines the configuration needed to run the system
+        test.</p></td></tr></table></div><p>
+          </p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="xml-di.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="test-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">XML Dependency Injection&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Integration Testing with Profiles</td></tr></table></div></body></html>

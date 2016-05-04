@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Thu Jul 17 11:09:30 EDT 2014
+cloudfoundry-runtime-0.8.2.pom>org.springframework.maven.milestone=
+cloudfoundry-runtime-0.8.2-sources.jar>org.springframework.maven.milestone=
+cloudfoundry-runtime-0.8.2.jar>org.springframework.maven.milestone=

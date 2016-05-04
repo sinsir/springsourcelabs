@@ -1,0 +1,105 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Spring Remoting</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="jmx-lab.html" title="JMX Management of Performance Monitor"><link rel="next" href="ws-lab.html" title="Exposing SOAP Endpoints using Spring WS"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="remoting-lab"></a>Spring Remoting</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="remoting-1-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
+      In this lab you will gain experience with Spring's support for a variety of remoting protocols. You will
+      expose the reward network on multiple endpoints and then test each of these from a standalone client running
+    in another JVM.  The lab will demonstrate Spring's consistent exporting and consuming strategies across
+   different remoting protocols.
+  </p><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>How to configure service exporters</p></li><li><p>How to configure client side proxies</p></li><li><p>How to deploy remote endpoints in a web application</p></li></ol></div><div class="orderedlist"><p class="title"><b>Specific subjects you will gain experience with:</b></p><ol type="1"><li><p>RmiServiceExporter</p></li><li><p>RmiProxyFactoryBean</p></li><li><p>HttpInvokerServiceExporter</p></li><li><p>HttpInvokerProxyFactoryBean</p></li></ol></div><p>
+   Estimated time to complete: 30 minutes
+  </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="remoting-1-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Occasionally, TODO'S defined within XML files may fail to appear in 
+    the <code class="literal">Tasks</code> view (i.e. gaps in the number sequence).  To correct this, 
+    go to <code class="literal">Preferences -&gt; General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+    pane.  Check <code class="literal">Enable searching for Task Tags</code> and click <code class="literal">Clean and Redetect Tasks</code>.
+    On the <code class="literal">Filters</code> tab, ensure XML content type is checked.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="remoting-1-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5837"></a>3.1.&nbsp;Remoting with RMI</h3></div></div></div><p>
+    In this section you will establish a service exporter for the <code class="classname">RewardNetwork</code> using
+    Java's RMI protocol and a client-side proxy to call the service.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.rmi-exporter"></a>3.1.1.&nbsp;Define the service exporter</h4></div></div></div><p>(TODO-01) Spring provides exporters that allow you to decorate existing POJOs in order to expose them on remote
+     endpoints. In this step, you will configure an RMI-based exporter to expose the existing
+     <code class="classname">RewardNetworkImpl</code> bean.
+    </p><p>
+     Find and open the <code class="filename">rmi-server-config.xml</code> file in the
+     <code class="literal">rewards.remoting</code> package in the <code class="literal">src/test/java</code> source folder.
+     Create a bean definition in that file of type <code class="classname">RmiServiceExporter</code>.
+     You will need to provide the following properties:
+     </p><div class="itemizedlist"><ul type="disc"><li><p>service (the reference to the actual POJO to export)</p></li><li><p>serviceInterface (the interface that the POJO implements)</p></li><li><p>
+        serviceName (the name used when binding to the rmiRegistry - such as 'rewardNetwork')
+       </p></li></ul></div><p>
+     </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+       You can set the <code class="literal">alwaysCreateRegistry</code> property to <code class="literal">true</code>
+       in order to save time on startup (no need to search for an existing rmiRegistry for 
+       testing)
+      </p></td></tr></table></div><p>
+    </p><p>
+     When you've done this, move on to the next step.
+    </p></div><p>(TODO-02) Next, start a server containing the RMI exported <code class="interfacename">RewardNetwork</code>.
+     Find and run the <code class="classname">RmiExporterBootstrap</code> class in the
+     <code class="literal">rewards.remoting</code> package. Right-click on the class and choose "Run as -&gt; Java
+     Application" to start the application.  Note that this application will run in the background and 
+     wait for client RMI requests to come in.  We will do this next.
+    </p><div class="mediaobject" align="center"><img src="images/remoting-1/run-as-java-application.png" align="middle"><div class="caption"><p>Figure 2: Run the <code class="classname">RmiExporterBootstrap</code> class</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.rmi-client"></a>3.1.2.&nbsp;Define the client-side proxy</h4></div></div></div><p>(TODO-03) Just as exposing the service is transparent, consumption is as well.  On the client, Spring uses a
+     proxy based mechanism to consume remoted services so that an application does not know that a
+     dependency is remote.  Spring provides a <code class="classname">RmiProxyFactoryBean</code> that generates
+     this proxy.
+    </p><p>
+     Find and open the <code class="literal">rmi-client-config.xml</code> file in the 
+     <code class="literal">rewards.remoting</code> package. Create a bean named <code class="literal">rewardNetwork</code>    
+     of type <code class="classname">RmiProxyFactoryBean</code> and provide the
+     <code class="literal">serviceInterface</code> and <code class="literal">serviceUrl</code> properties.
+     </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+       The URL will be of the form: <code class="literal">rmi://host:port/serviceName</code>.  Use
+       'localhost' for the host name and 1099 (the default RMI port) for the port number.
+      </p></td></tr></table></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.rmi-run-tests"></a>3.1.3.&nbsp;Run the tests</h4></div></div></div><p>(TODO-04) Find and open the <code class="classname">RmiTests</code> class in the <code class="literal">rewards.remoting</code>
+     package. Notice that most of the test has been written for you.  First, create the application
+     context by providing the name of the configuration file where the client-side context is configured.
+     Use 'classpath:' as the prefix or start the file name with a leading '/'.
+    </p><p>Next, notice that the test relies on
+     <code class="classname">@Autowired</code> to inject a
+     <code class="interfacename">RewardNetwork</code> implementation.  By relying on polymorphism, we get
+     a proxy injected that looks like <code class="interfacename">RewardNetwork</code> and directs the method
+     call to a remote service.
+    </p><p>(TODO-05) Next complete the <code class="methodname">testRmiClient</code> method by calling the
+     <code class="methodname">rewardAccountFor(Dining)</code> method on the
+     <code class="interfacename">RewardNetwork</code>.  When complete, run this test.  If you see the green bar you've completed
+     this section.  Move on to the next section.
+    </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e5978"></a>3.2.&nbsp;Remoting with Spring's HttpInvoker</h3></div></div></div><p>
+    In the previous step, you tested an exporter/client-proxy pair with the RMI remoting
+    protocol. Now you will establish a remoting scenario for the reward network based upon
+    Spring's HTTP-based protocol.
+   </p><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5983"></a>3.2.1.&nbsp;Examine the web application deployment descriptor</h4></div></div></div><p>
+     Find and open the <code class="filename">web.xml</code> file in the <code class="literal">src/main/webapp</code>
+     directory.  Take note of the configuration of the <code class="classname">DispatcherServlet</code> (playing
+     the role of 'Front Controller') and how it will be loading beans from the
+     <code class="filename">/WEB-INF/remoting-config.xml</code> file.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.http-exporter"></a>3.2.2.&nbsp;Define the service exporter</h4></div></div></div><p>(TODO-06) Find and open the <code class="filename">remoting-config.xml</code> file in the
+     <code class="literal">src/main/webapp/WEB-INF</code> directory.  In this file, create a bean definition for a
+     <code class="classname">HttpInvokerServiceExporter</code>. Its id should be
+     <code class="literal">/httpInvoker/rewardNetwork</code>. Inject values for the
+     <code class="literal">serviceInterface</code> and <code class="literal">service</code> properties.
+    </p><p>Once completed, go to the next step.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6025"></a>3.2.3.&nbsp;Start the web application</h4></div></div></div><p>Now start the web application for this project.  Once started, the welcome page (just a static index
+     page at the context root) should be accessible as
+     <a href="http://localhost:8080/remoting" target="_top">http://localhost:8080/remoting</a>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.http-client"></a>3.2.4.&nbsp;Define the client-side proxy</h4></div></div></div><p>(TODO-07) Find and open the <code class="filename">httpinvoker-client-config.xml</code> file in the
+     <code class="literal">rewards.remoting</code> package in the <code class="literal">src/test/java</code> source folder.
+     In this file, define a bean definition of type <code class="classname">HttpInvokerProxyFactoryBean</code>
+          named <code class="literal">rewardNetwork</code>.  Set the <code class="literal">serviceInterface</code> and <code class="literal">serviceUrl</code> properties.
+    </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>
+      The <code class="literal">serviceUrl</code> property is a concatenation of the web application url and the
+      URL endpoint the service is exported to.  Therefore, you should use
+      <code class="literal">http://localhost:8080/remoting/rewards/httpInvoker/rewardNetwork</code> as the
+      value.
+     </p></td></tr></table></div><p>Continue to the next step.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="details.http-run-tests"></a>3.2.5.&nbsp;Run the tests</h4></div></div></div><p>(TODO-08)  Find and open the <code class="classname">HttpInvokerTests</code> class in the
+     <code class="literal">rewards.remoting</code> package.  Notice that most of the test has been written for you.
+     First, create the application context by providing the name of the configuration file where the
+     client-side context is configured.
+    </p><p>(TODO-09)  Next complete the <code class="methodname">testHttpInvokerClient</code> method by calling the
+     <code class="methodname">rewardAccountFor(Dining)</code> method on the
+     <code class="interfacename">RewardNetwork</code>.  Run this test, it should pass.  
+    </p><p>Finally, compare this test code to the 
+     <code class="classname">RmiTests</code> class you completed earlier.  Other than the configuration, the client code is identical.
+     This is part of the advantage of using Spring for remoting, all details regarding transport have been abstracted away
+     and handled by the framework.  Congratulations, you have now completed this lab. 
+    </p></div></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jmx-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ws-lab.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">JMX Management of Performance Monitor&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Exposing SOAP Endpoints using Spring WS</td></tr></table></div></body></html>

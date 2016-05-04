@@ -1,0 +1,105 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>XML Dependency Injection</title><link rel="stylesheet" href="css/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.0"><link rel="start" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="up" href="index.html" title="Core Spring Training - Lab Documentation"><link rel="prev" href="annotations-lab.html" title="Configuration with annotations"><link rel="next" href="xml-dependency-best-practices.html" title="Dependency Injection Best Practices"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div xmlns="http://www.w3.org/TR/xhtml1/transitional" style="background-color:white;border:none;height:73px;border:1px solid black;"><a style="border:none;" href="http://www.gopivotal.com/" title="Spring at Pivotal"><img style="border:none;" src="images/xdev-spring_logo.jpg"></img></a><a style="border:none;" href="http://www.spring.io/" title="Spring"><img style="border:none;position:absolute;padding-top:5px;right:42px;" src="images/springsource-banner-rhs.jpg"></img></a></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="xml-di"></a>XML Dependency Injection</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="xml-di-lab-introduction"></a>1.&nbsp;Introduction</h2></div></div></div><div class="orderedlist"><p class="title"><b>What you will learn:</b></p><ol type="1"><li><p>Configuring a Spring application using classic XML configuration.</p></li><li><p>How to use XML namespaces</p></li></ol></div><p>Estimated time to complete: 30 minutes</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="xml-di-lab-quick-instructions"></a>2.&nbsp;Quick Instructions</h2></div></div></div><p>Quick instructions for this exercise have been embedded within the lab materials
+    in the form of TODO comments.  To display them, open the <code class="literal">Tasks</code> view 
+    (Window -&gt; Show view -&gt; Tasks (<span class="emphasis"><em>not Task List</em></span>)).</p><p>Occasionally, TODO'S defined within XML files may fail to appear in 
+    the <code class="literal">Tasks</code> view (i.e. gaps in the number sequence).  To correct this, 
+    go to <code class="literal">Preferences -&gt; General -&gt; Editors -&gt; Structured Text Editor -&gt; Task Tags</code>
+    pane.  Check <code class="literal">Enable searching for Task Tags</code> and click <code class="literal">Clean and Redetect Tasks</code>.
+    On the <code class="literal">Filters</code> tab, ensure XML content type is checked.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="xml-di-lab-instructions"></a>3.&nbsp;Detailed Instructions</h2></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="xml.di.details.verify"></a>3.1.&nbsp;First verify that everything works</h3></div></div></div><p>(TODO-01) The project features an integration test that verifies the
+        system's behavior. It's called
+        <code class="classname">RewardNetworkTests</code> and lives in the
+        <code class="classname">rewards</code> package. Run this test by
+        right-clicking on it and selecting 'Run As...' followed by 'JUnit
+        Test'. The test should run successfully.  </p><p>This test illustrates a
+        great advantage of using automated tests to verify that the refactoring
+        our application is successful.  We will run this test again after we make 
+        changes to the application to verify that our system functions the same 
+        as it did originally.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1607"></a>3.2.&nbsp;Convert to XML configuration / Component Scanning</h3></div></div></div><p>(TODO 02) Open the rewards-config.xml file located in the config
+      folder.  This will serve as our main application configuration file, and
+      will replace the configuration instructions currently in the <code class="classname">RewardsConfig.java</code>
+      class.</p><p>Our first step will be to add the context namespace to this configuration
+      file.  This can be done manually via copy / paste, but STS provides a quicker
+      alternative.  On the bottom of the editor you should see a "Namespaces" tab.
+      Within this tab you will see a set of checkboxes, each one represents a namespace
+      that you can add to the XML root element.  Check the "context" box (you may
+      be prompted that this will add an element to you configuration file, which is
+      exactly what we want, so click OK).  Return to the "Source" tab and note that
+      the XML namespace "context" has been added to your XML root element.  This means
+      you can now take advantage of the context: namespace. </p><p>(TODO 03) Now that we have added the context: namespace, we can add
+	  the element to do component scanning.  If you enter "context:" and press
+	  Ctrl-space, the editor will prompt you for the possible entries in the 
+	  context namespace that can be used.  Select "context:component-scan".</p><p>Within the component-scan tag it is important to set the 
+	  "base-package" element; this tells Spring which packages and sub-packages
+	  should be included in the scanning process.  If you look at the 
+	  <code class="classname">RewardsConfig.java</code> class, you can see the value
+	  presently used by the JavaConfiguration: "rewards".  Use this same value.</p><p>(TODO 04) At this point, we have an XML configuration file equivalent
+      of our <code class="classname">RewardsConfig.java</code> class.  However, our test class
+      is still coded to load the Java configuration files instead.  We need to switch
+      this to a variant of the ApplicationContext that takes XML files as parameters:
+      <code class="classname">ClassPathXmlApplicationContext</code>.</p><p>Replace the <code class="classname">AnnotationConfigApplicationContext</code>
+      with <code class="classname">ClassPathXmlApplicationContext</code>.  For parameters,
+      you will need to provide the paths to the two configuration files for our application.
+      The first is the file you just modified, <code class="literal">rewards-config.xml</code> 
+      located in the <code class="literal">config</code> folder.  The second is an existing XML
+      file already prepared for you, <code class="literal">test-infrastructure-config.xml</code> 
+      located in the <code class="literal">rewards</code> folder.  Note that both of these are
+      classpath resources, so you should prefix both Strings with <code class="literal">classpath:</code>
+      prefixes to tell Spring to look on the classpath for these resources.</p><p>Once you have finished this modification, save all your work and rerun
+	  the <code class="classname">RewardNetworkTests</code>.  The test should pass at this point.  If it does not,
+	  take a look at the test output to see if you can determine why.  The most 
+	  likely issue is the file/path literals of the configuration files.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1660"></a>3.3.&nbsp;Switch to pure XML Configuration</h3></div></div></div><p>At this point, we are using Annotation-based configuration
+        to define the application components (RewardNetwork and the three repositories)
+        and XML configuration to define the DataSource.  In this next section, we will
+        demonstrate how to use a 100% XML configuration.  Return to rewards-config.xml
+        and perform the following.</p><p>(TODO 05) Define a bean element to instantiate the <code class="classname">JdbcAccountRepository</code>.
+        It is good practice to give beans an ID using the "id" attribute, so give this
+        bean the ID "accountRepository", or any other ID you like.  Use the "class" 
+        attribute to specify the the fully-qualified classname of what we want to instantiate,
+        the JdbcAccountRepository.  STS provides a great feature here to quickly determine
+        the packaging:  within the class attribute value type "JAR" (all caps) and press Ctrl-C.
+        STS will prompt you with all known classes that match the camel-case pattern.  Simply
+        choose JdbcAccountRepository from the list.</p><p>Next, within the bean element start and end tags, place a property sub-element
+        to set the dataSource property.  The autocomplete feature is very useful here, using it
+        you can discover that the "name" of the property we want to set is called "dataSource".
+        We want to set this to a "ref" to another bean named "dataSource".  Note that this
+        other bean is defined elsewhere, so in this case the autocomplete feature can't 
+        help us.  Also note that the editor may give you a warning that this bean is unknown
+        for the same reason; you can safely ignore this warning for now.
+		</p><p>(TODO 06) Define a bean element to instantiate the <code class="classname">JdbcRestaurantRepository</code>.
+        The procedure is exactly the same as the last step, except you should select a different
+        ID value (suggest: "restaurantRepository") and the fully-qualified classname.
+        </p><p>Also, this class has a special method within it that must be called at
+        startup time in order to pre-populate its cache.  The method is named 
+        <code class="literal">populateRestaurantCache</code> and you should use the 
+        <code class="literal">init-method</code> attribute to specify it.</p><p>(TODO 07) Define a bean element to instantiate the <code class="classname">JdbcRewardRepository</code>.
+        The procedure is exactly the same as the the previous two steps, except 
+        a different ID should be used (suggest: "rewardRepository") and the 
+        fully-qualified classname should be different.  Note there is no need for
+        any init-method on this bean.
+        </p><p>(TODO 08) Define a bean element to instantiate the <code class="classname">RewardNetworkImpl</code>.
+        The ID for this bean should be "rewardNetwork" to allow our existing test code
+        to work.  This bean has three constructor arguments that must be populated: an
+        AccountRepository, a RestaurantRepository, and a RewardRepository.  These happen
+        to be the beans defined in the previous three steps so use the constructor-arg
+        sub-elements with ref attributes to specify these dependencies.
+        </p><p>Now that we have defined XML bean definitions for our beans, we can
+        remove the annotations on the classes themselves:</p><p>(TODO 09) Open <code class="classname">RewardNetworkImpl</code> and remove 
+        the <code class="literal">@Service</code> and <code class="literal">@Autowired</code> annotations.</p><p>(TODO 10) Open <code class="classname">JdbcAccountRepository</code> and remove the 
+        <code class="literal">@Repository</code> and <code class="literal">@Autowired</code> annotations.</p><p>(TODO 11) Open <code class="classname">JdbcRestaurantRepository</code> and remove the 
+        <code class="literal">@Repository</code> and <code class="literal">@Autowired</code> annotations.</p><p>(TODO 12) While in the <code class="classname">JdbcRestaurantRepository</code> remove
+        the <code class="literal">@PostConstruct</code> annotation from the <code class="literal">populateRestaurantCache</code>
+        method.  Our XML configuration instructions will ensure that this method
+        is called during startup.</p><p>(TODO 13) Open <code class="classname">JdbcRewardRepository</code> and remove the 
+        <code class="literal">@Repository</code> and <code class="literal">@Autowired</code> annotations.
+        </p><p>At this point, we have removed all of the annotation-based configuration.
+		Save all your work, and re-run the <code class="classname">RewardNetworkTests</code>.  
+		It should pass - Spring is now using XML-based bean definitions.  Congratulations,
+		you have completed this lab.
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1757"></a>3.4.&nbsp;Bonus - Remove Component Scanning</h3></div></div></div><p>(TODO 14) Now that we are using XML configuration and have removed all
+        the stereotype and DI annotations, is there any reason
+        for the component-scanning element to remain?  Remove this element and
+        rerun the test, It should pass.  You can also experiment with removing the
+        <code class="classname">RewardsConfig</code> and 
+        <code class="classname">TestInfrastructureConfig</code> classes since they are no longer
+        used.</p></div></div></div><div xmlns="http://www.w3.org/TR/xhtml1/transitional" class="navfooter"><hr></hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="annotations-lab.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="xml-dependency-best-practices.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Configuration with annotations&nbsp;</td><td width="20%" align="center"><span style="color:white;font-size:90%;"><a href="http://www.spring.io/" title="Spring">By Spring</a></span></td><td width="40%" align="right" valign="top">&nbsp;Dependency Injection Best Practices</td></tr></table></div></body></html>
